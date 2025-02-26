@@ -13,7 +13,7 @@ const StyledAnimatedButton = styled(Button)(({ theme }) => ({
   fontWeight: 600,
   transition: 'all 0.3s ease',
   border: 'none',
-  backgroundColor: 'white',
+  backgroundColor: 'transparent',
 
   '&::before': {
     content: '""',
