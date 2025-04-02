@@ -530,8 +530,6 @@ const CourseContent = () => {
 
   // Updated handleSubmitReview function
   const handleSubmitReview = async () => {
-    console.log('Submitted review:', { rating: ratingValue, review: reviewText });
-  
     // Get user info from localStorage
     const user = getUserInfo();
     const userId = user?.user_id || user?.id;

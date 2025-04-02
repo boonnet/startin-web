@@ -447,8 +447,6 @@ const Homepage = () => {
             }
           });
 
-          console.log("All enrollments response:", enrollmentResponse.data);
-
           // Process enrollments data
           if (enrollmentResponse.data && enrollmentResponse.data.data) {
             setAllEnrollments(enrollmentResponse.data.data);
@@ -468,7 +466,6 @@ const Homepage = () => {
                   (enrollment.Template && enrollment.Template.id));
 
               setEnrolledTemplates(enrolledTemplateIds);
-              console.log("Current user enrolled templates:", enrolledTemplateIds);
 
               // Extract course IDs from user enrollments
               const enrolledCourseIds = userEnrollments
@@ -478,7 +475,6 @@ const Homepage = () => {
                   (enrollment.Course && enrollment.Course.id));
 
               setEnrolledCourses(enrolledCourseIds);
-              console.log("Current user enrolled courses:", enrolledCourseIds);
             }
           }
         } catch (err) {
@@ -506,8 +502,7 @@ const Homepage = () => {
                 .filter(favorite => favorite.course_id)
                 .map(favorite => favorite.course_id);
 
-              setFavoriteCourses(favoriteCourseIds);
-              console.log("Current user favorite courses:", favoriteCourseIds);
+              setFavoriteCourses(favoriteCourseIds);;
 
               // Extract favorite template IDs
               const favoriteTemplateIds = userFavorites
@@ -515,7 +510,6 @@ const Homepage = () => {
                 .map(favorite => favorite.template_id);
 
               setFavoriteTemplates(favoriteTemplateIds);
-              console.log("Current user favorite templates:", favoriteTemplateIds);
             }
           } catch (err) {
             console.error("Error fetching favorites:", err);

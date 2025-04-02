@@ -57,8 +57,6 @@ const MyTemplates = () => {
           }
         });
 
-        console.log("All enrollments response:", enrollmentResponse.data);
-
         // Process enrollments data
         if (enrollmentResponse.data && enrollmentResponse.data.data) {
           // Filter enrollments for the current user and only those with template_id
@@ -70,7 +68,6 @@ const MyTemplates = () => {
           );
 
           setEnrolledTemplates(userTemplateEnrollments);
-          console.log("Current user enrolled templates:", userTemplateEnrollments);
         }
       } catch (err) {
         console.error("Error fetching template enrollments:", err);

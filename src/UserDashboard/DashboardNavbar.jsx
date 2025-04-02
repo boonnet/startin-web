@@ -164,7 +164,6 @@ const DashboardNavbar = ({ toggleSidebar }) => {
   
     try {
       const response = await axios.get(`${baseurl}/api/notification/all`);
-      console.log("All notifications:", response.data);
   
       if (response.data.status === 'success' && response.data.data) {
         const userNotifications = response.data.data.filter(
@@ -201,7 +200,7 @@ const DashboardNavbar = ({ toggleSidebar }) => {
         }
         
         setNotifications(formattedData);
-        console.log("Filtered notifications:", formattedData);
+
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -234,7 +233,6 @@ const DashboardNavbar = ({ toggleSidebar }) => {
         user_id: userId
       }).then(response => {
         setUnreadCount(0);
-        console.log('Marked notifications as read:', response.data);
       });
     } catch (error) {
       console.error('Error marking notifications as read:', error);

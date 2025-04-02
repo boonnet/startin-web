@@ -81,8 +81,6 @@ const Dashboard = () => {
           }
         });
 
-        console.log("All enrollments response:", enrollmentResponse.data);
-
         // Process enrollments data
         if (enrollmentResponse.data && enrollmentResponse.data.data) {
           setAllEnrollments(enrollmentResponse.data.data);
@@ -100,8 +98,6 @@ const Dashboard = () => {
 
             setEnrolledCourses(coursesEnrolled);
             setEnrolledTemplates(templatesEnrolled);
-            console.log("Current user enrolled courses:", coursesEnrolled);
-            console.log("Current user enrolled templates:", templatesEnrolled);
           }
         }
       } catch (err) {
@@ -158,7 +154,6 @@ const Dashboard = () => {
           throw new Error('Failed to fetch course progress');
         }
         const result = await response.json();
-        console.log('Fetched course progress data:', result);
         
         if (result.success && Array.isArray(result.data)) {
           setCourseProgress(result.data);
@@ -201,7 +196,6 @@ const Dashboard = () => {
           }
           
           setCompletedCourses(completed);
-          console.log('Completed courses:', completed);
         }
       } catch (error) {
         console.error('Error fetching course progress:', error);

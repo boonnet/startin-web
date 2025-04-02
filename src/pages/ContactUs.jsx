@@ -54,8 +54,6 @@ const ContactUs = () => {
     
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Add your form submission logic here
-        console.log(formData);
     };
     
     const faqItems = [

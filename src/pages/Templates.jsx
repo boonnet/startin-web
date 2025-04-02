@@ -230,8 +230,6 @@ const Courses = () => {
             }
           });
 
-          console.log("All enrollments response:", enrollmentResponse.data);
-
           // Process enrollments data
           if (enrollmentResponse.data && enrollmentResponse.data.data) {
             setAllEnrollments(enrollmentResponse.data.data);
@@ -251,7 +249,7 @@ const Courses = () => {
                   (enrollment.Template && enrollment.Template.id));
 
               setEnrolledTemplates(enrolledTemplateIds);
-              console.log("Current user enrolled templates:", enrolledTemplateIds);
+
 
               // Extract course IDs from user enrollments
               const enrolledCourseIds = userEnrollments
@@ -261,7 +259,6 @@ const Courses = () => {
                   (enrollment.Course && enrollment.Course.id));
 
               setEnrolledCourses(enrolledCourseIds);
-              console.log("Current user enrolled courses:", enrolledCourseIds);
             }
           }
         } catch (err) {
@@ -290,7 +287,6 @@ const Courses = () => {
                 .map(favorite => favorite.course_id);
 
               setFavoriteCourses(favoriteCourseIds);
-              console.log("Current user favorite courses:", favoriteCourseIds);
 
               // Extract favorite template IDs
               const favoriteTemplateIds = userFavorites
@@ -298,7 +294,6 @@ const Courses = () => {
                 .map(favorite => favorite.template_id);
 
               setFavoriteTemplates(favoriteTemplateIds);
-              console.log("Current user favorite templates:", favoriteTemplateIds);
             }
           } catch (err) {
             console.error("Error fetching favorites:", err);
