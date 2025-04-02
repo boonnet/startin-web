@@ -100,8 +100,11 @@ const DashboardLayout = () => {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,
             }),
-            overflow: "visible" // Changed from "auto" to "visible" so scrolling is handled by parent
+            // overflow: "visible", // Changed from "auto" to "visible" so scrolling is handled by parent
+            height: '100vh',
+            overflowY: 'scroll',
           }}
+          className="scrollable-content"
         >
           {/* Breadcrumb */}
           <Box sx={{ mb: 2 }}>

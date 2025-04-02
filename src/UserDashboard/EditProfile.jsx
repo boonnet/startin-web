@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import { 
   Box, 
@@ -28,6 +29,7 @@ const EditProfile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState('');
   const [initialLoad, setInitialLoad] = useState(true);
+  const navigate = useNavigate();
 
   // Format image URL to handle relative paths
   const formatImageUrl = (imagePath) => {
@@ -44,6 +46,16 @@ const EditProfile = () => {
     // Combine with base URL
     return `${baseurl}/${formattedPath}`;
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const userInfo = localStorage.getItem("userInfo");
+    
+    if (!token || !userInfo) {
+      // User is not logged in, redirect to login page
+      navigate('/login');
+    }
+  }, [navigate]);
 
   // Fetch user data on component mount
   useEffect(() => {
