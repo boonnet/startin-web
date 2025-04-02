@@ -21,7 +21,7 @@ const StyledAnimatedButton = styled(Button)(({ theme }) => ({
     top: '50%',
     left: '-100%',
     transform: 'translateY(-50%)',
-    width: '125%',
+    width: '130%',
     height: '100%',
     background: 'linear-gradient(90deg, #FAB3F7 0%, #FF85FF 50%, #FF52F8 100%)',
     backgroundSize: '200% 100%',

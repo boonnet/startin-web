@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -8,15 +8,155 @@ import {
   Link,
   TextField,
   Typography,
-  useMediaQuery
+  useMediaQuery,
+  Alert,
+  Snackbar,
+  InputAdornment
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import googleicon from '../../assets/logos_google-icon.png';
 import facebookicon from '../../assets/Vector.png';
 import Loginsvg from '../../assets/loginsvg.png';
 import loginbg from '../../assets/loginbg.png';
+import axios from 'axios';
+import baseurl from '../../ApiService/ApiService'
 
 const Register = () => {
   const isTablet = useMediaQuery('(min-width:426px) and (max-width:768px)');
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      });
+    }
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Validate full name
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    }
+    
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    // Validate password
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    // Validate confirm password
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const username = formData.fullName.split(' ')[0].toLowerCase();
+      
+      // Prepare data for API
+      const userData = {
+        username: username,
+        email: formData.email,
+        password: formData.password,
+        phone: '' // If you want to add phone field later
+      };
+      
+      // Make API call
+      const response = await axios.post(`${baseurl}/api/user/register`, userData);
+      
+      // Handle successful registration
+      setNotification({
+        open: true,
+        message: 'Account created successfully! Redirecting to login...',
+        severity: 'success'
+      });
+      
+      // Redirect to login page after a delay
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
+      
+    } catch (error) {
+      // Handle error
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      setNotification({
+        open: true,
+        message: errorMessage,
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({
+      ...notification,
+      open: false
+    });
+  };
 
   return (
     <Box
@@ -30,6 +170,21 @@ const Register = () => {
         overflow: 'hidden',
       }}
     >
+      <Snackbar 
+        open={notification.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.severity}
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+      
       <Container
         maxWidth="lg"
         sx={{
@@ -45,7 +200,7 @@ const Register = () => {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center', // Changed to center for tablet view
+            justifyContent: 'center', 
             gap: { xs: 2, md: 4 },
             minHeight: '100vh',
             flexDirection: { xs: 'column', md: 'row' },
@@ -75,6 +230,8 @@ const Register = () => {
 
           {/* Registration form container */}
           <Box
+            component="form"
+            onSubmit={handleSubmit}
             sx={{
               flex: { xs: '1', md: '0 1 450px' },
               width: {
@@ -99,7 +256,7 @@ const Register = () => {
               sx={{
                 fontSize: { xs: '1.75rem', sm: '2rem' },
                 textAlign: { xs: 'center', sm: 'left' },
-                fontWeight:600
+                fontWeight: 600
               }}
             >
               Create your Account
@@ -122,8 +279,13 @@ const Register = () => {
             <TextField
               fullWidth
               label="Full Name"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
               variant="outlined"
               margin="normal"
+              error={!!errors.fullName}
+              helperText={errors.fullName}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
                 '& .MuiOutlinedInput-root': {
@@ -135,8 +297,14 @@ const Register = () => {
             <TextField
               fullWidth
               label="Email Address"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
               variant="outlined"
               margin="normal"
+              error={!!errors.email}
+              helperText={errors.email}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
                 '& .MuiOutlinedInput-root': {
@@ -148,9 +316,27 @@ const Register = () => {
             <TextField
               fullWidth
               label="Password"
-              type="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
               variant="outlined"
               margin="normal"
+              error={!!errors.password}
+              helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleTogglePasswordVisibility}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
                 '& .MuiOutlinedInput-root': {
@@ -162,9 +348,27 @@ const Register = () => {
             <TextField
               fullWidth
               label="Confirm Password"
-              type="password"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
               variant="outlined"
               margin="normal"
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={handleToggleConfirmPasswordVisibility}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
                 '& .MuiOutlinedInput-root': {
@@ -187,6 +391,8 @@ const Register = () => {
               fullWidth
               variant="contained"
               size="large"
+              type="submit"
+              disabled={loading}
               sx={{
                 borderRadius: 2,
                 py: { xs: 1.2, sm: 1.5 },
@@ -198,7 +404,7 @@ const Register = () => {
                 fontSize: { xs: '0.9rem', sm: '1rem' }
               }}
             >
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
 
             <Box

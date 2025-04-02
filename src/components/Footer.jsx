@@ -8,83 +8,115 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import baseurl from '../ApiService/ApiService'; // Import your API base URL
+import {useNavigate } from 'react-router-dom';
 
 const Footer = React.memo(() => {
   const [logo, setLogo] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [settings, setSettings] = useState(null);
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   
-  // Fetch logo from backend
+  // Fetch settings including logo from backend
   useEffect(() => {
-    const fetchLogo = async () => {
+    const fetchSettings = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/logo', {
-          responseType: 'blob'  // Get response as blob for image
-        });
+        const response = await axios.get(`${baseurl}/api/settings/1`);
         
-        // Convert blob to URL
-        const logoUrl = URL.createObjectURL(response.data);
-        setLogo(logoUrl);
-        setError(null);
+        if (response.data && response.data.site_logo) {
+          // Store full settings data
+          setSettings(response.data);
+          // Create full URL for the logo
+          setLogo(`${baseurl}/${response.data.site_logo}`);
+          setError(null);
+        } else {
+          setError('Logo not found in response');
+        }
       } catch (err) {
-        console.error('Error fetching logo:', err);
-        setError('Failed to load logo');
+        console.error('Error fetching settings:', err);
+        setError('Failed to load settings');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchLogo();
-
-    // Cleanup function to revoke object URL
-    return () => {
-      if (logo) {
-        URL.revokeObjectURL(logo);
-      }
-    };
+    fetchSettings();
   }, []);
 
   const quickLinks = [
     { text: 'Home', href: '/' },
     { text: 'Courses', href: '/courses' },
-    { text: 'About', href: '/about' },
-    { text: 'Contact', href: '/contact' },
-    { text: 'Blog', href: '/blog' }
+    { text: 'About', href: '/WhoWeAre' },
+    { text: 'Contact', href: '/ContactUs' },
+    // { text: 'Blog', href: '/blog' }
   ];
 
-  const courses = [
-    { text: 'Business', href: '/courses/business' },
-    { text: 'Technology', href: '/courses/technology' },
-    { text: 'Finance', href: '/courses/finance' }
-  ];
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${baseurl}/api/category/all`);
+      setCategories(response.data.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      setError('Failed to load categories. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use social links from API if available
   const socialIcons = [
-    { Icon: InstagramIcon, href: '#', color: '#00ffdd' },
-    { Icon: TwitterIcon, href: '#', color: '#00ffdd' },
-    { Icon: FacebookIcon, href: '#', color: '#00ffdd' },
-    { Icon: LinkedInIcon, href: '#', color: '#00ffdd' }
+    { 
+      Icon: InstagramIcon, 
+      href: settings?.instagram_url || '#', 
+      color: '#00ffdd' 
+    },
+    { 
+      Icon: TwitterIcon, 
+      href: settings?.twitter_url || '#', 
+      color: '#00ffdd' 
+    },
+    { 
+      Icon: FacebookIcon, 
+      href: settings?.facebook_url || '#', 
+      color: '#00ffdd' 
+    },
+    { 
+      Icon: LinkedInIcon, 
+      href: settings?.linkedin_url || '#', 
+      color: '#00ffdd' 
+    }
   ];
 
+  // Use contact info from API if available
   const contactInfo = [
     { 
       icon: <PhoneIcon sx={{ color: '#00ffdd' }} />,
-      text: '+91 98765 43210',
-      href: 'tel:+919876543210'
+      text: settings?.contact_no || '+91 98765 43210',
+      href: `tel:${settings?.contact_no || '+919876543210'}`
     },
     {
       icon: <EmailIcon sx={{ color: '#00ffdd' }} />,
-      text: 'example@email.com',
-      href: 'mailto:example@email.com'
+      text: settings?.contact_mail || 'example@email.com',
+      href: `mailto:${settings?.contact_mail || 'example@email.com'}`
     },
     {
       icon: <LocationOnIcon sx={{ color: '#00ffdd' }} />,
       text: 'Tamil Nadu, India',
-      href: '#'
+      href: settings?.location_url || '#'
     }
   ];
 
@@ -131,14 +163,15 @@ const Footer = React.memo(() => {
       <Box 
         component="img"
         src={logo}
-        alt="Logo"
+        alt={settings?.site_name || "Logo"}
         sx={{ 
           width: { xs: 120, sm: 150 }, 
           height: { xs: 48, sm: 60 }, 
-          bgcolor: 'white', 
+          background: 'transparent', 
           mb: { xs: 1.5, sm: 2 },
           objectFit: 'contain'
         }}
+        onClick={() => navigate('/')}
       />
     );
   };
@@ -147,7 +180,7 @@ const Footer = React.memo(() => {
     <Box 
       component="footer" 
       sx={{ 
-        bgcolor: '#1b1e2b', 
+        bgcolor: 'rgba(29, 37, 65, 1)', 
         color: 'white', 
         mt: 'auto', 
         py: { xs: 3, sm: 4 },
@@ -166,7 +199,7 @@ const Footer = React.memo(() => {
                 fontSize: { xs: '0.875rem', sm: '1rem' }
               }}
             >
-              Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
+              {settings?.site_description || "Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc"}
             </Typography>
             <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
               Connect with Us
@@ -218,11 +251,11 @@ const Footer = React.memo(() => {
               Courses
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 0.75, sm: 1 } }}>
-              {courses.map((course, index) => (
+              {categories.map((course, index) => (
                 <Typography
                   key={index}
                   component={Link}
-                  href={course.href}
+                  href='/Courses'
                   sx={{
                     color: 'white',
                     textDecoration: 'none',
@@ -230,7 +263,7 @@ const Footer = React.memo(() => {
                     '&:hover': { color: '#00ffdd' }
                   }}
                 >
-                  {course.text}
+                  {course.category_name}
                 </Typography>
               ))}
             </Box>
@@ -294,7 +327,7 @@ const Footer = React.memo(() => {
               fontSize: { xs: '0.75rem', sm: '0.875rem' }
             }}
           >
-            ©2025. All Rights Reserved.
+            ©2025. All Rights Reserved. {settings?.site_name ? `${settings.site_name}` : ''}
           </Typography>
           <Box 
             sx={{ 

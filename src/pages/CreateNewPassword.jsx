@@ -3,38 +3,37 @@ import {
   Box,
   Button,
   Container,
-  Divider,
-  IconButton,
-  Link,
   TextField,
   Typography,
+  Link,
+  IconButton,
+  InputAdornment,
   Alert,
   Snackbar,
-  CircularProgress,
-  InputAdornment
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import googleicon from '../../assets/logos_google-icon.png';
-import facebookicon from '../../assets/Vector.png';
-import Loginsvg from '../../assets/loginsvg.png';
-import loginbg from '../../assets/loginbg.png';
+import loginbg from '../assets/loginbg.png';
+import Loginsvg from '../assets/loginsvg.png';
+import Navbar from '../components/Navbar';
 import axios from 'axios';
-import baseurl from '../../ApiService/ApiService';
-import Navbar from '../Navbar';
+import baseurl from '../ApiService/ApiService';
 
-const Login = () => {
+const CreateNewPassword = () => {
   // Form state
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    token: '',
+    newPassword: '',
+    confirmPassword: ''
   });
 
   // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -46,80 +45,58 @@ const Login = () => {
   };
 
   // Toggle password visibility
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const handleToggleNewPasswordVisibility = () => {
+    setShowNewPassword(!showNewPassword);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      setError('Please enter both email and password');
-      return;
+    // Validate inputs
+    if (!formData.token) {
+        setError('Please enter the reset token');
+        return;
+    }
+
+    if (!formData.newPassword) {
+        setError('Please enter a new password');
+        return;
+    }
+
+    if (formData.newPassword !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
     }
 
     setLoading(true);
     setError('');
 
     try {
-      // Call the login API
-      const response = await axios.post(`${baseurl}/api/user/login`, {
-        email: formData.email,
-        password: formData.password
-      });
-
-      // Store token in localStorage for future authenticated requests
-      if (response.data && response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
-
-        // Get user details after successful login
-        try {
-          // Decode token to get user ID (assuming token contains uid)
-          const tokenData = JSON.parse(atob(response.data.token.split('.')[1]));
-          const userId = tokenData.uid;
-
-          // Fetch user details including profile image
-          const userResponse = await axios.get(`${baseurl}/api/user/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${response.data.token}`
-            }
-          });
-
-          // Store user info in localStorage
-          if (userResponse.data) {
-            localStorage.setItem('userInfo', JSON.stringify({
-              id: userResponse.data.id || userId,
-              username: userResponse.data.username || '',
-              email: userResponse.data.email || formData.email,
-              profile_image: userResponse.data.profile_image || ''
-            }));
-          }
-        } catch (userError) {
-          console.error('Error fetching user details:', userError);
-          // Still store basic info if user details fetch fails
-          localStorage.setItem('userInfo', JSON.stringify({
-            email: formData.email
-          }));
-        }
+        // Call the reset password API
+        const response = await axios.post(`${baseurl}/api/reset-password`, {
+            token: formData.token,
+            newpassword: formData.newPassword // Corrected key
+        });
 
         setSuccess(true);
 
-        // Redirect to dashboard or home page after successful login
+        // Redirect to login page after successful password reset
         setTimeout(() => {
-          window.location.href = '/'; // Change to your app's main page after login
-        }, 1000);
-      } else {
-        setError('Login failed. Invalid response from server.');
-      }
+            window.location.href = '/login';
+        }, 1500);
 
     } catch (error) {
-      console.error('Login error:', error);
-      setError(error.response?.data?.message || 'Login failed. Please check your credentials.');
+        console.error('Password reset error:', error);
+        setError(error.response?.data?.message || 'Password reset failed. Please try again.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   // Handle snackbar close
   const handleCloseSnackbar = () => {
@@ -175,7 +152,7 @@ const Login = () => {
               <Box
                 component="img"
                 src={Loginsvg}
-                alt="Login illustration"
+                alt="Reset Password illustration"
                 sx={{
                   width: '100%',
                   maxWidth: { md: 350, lg: 400 },
@@ -184,7 +161,7 @@ const Login = () => {
               />
             </Box>
 
-            {/* Login form container */}
+            {/* Reset Password form container */}
             <Box
               component="form"
               onSubmit={handleSubmit}
@@ -211,31 +188,26 @@ const Login = () => {
                   fontWeight: 600
                 }}
               >
-                Login to your Account
+                Create New Password
               </Typography>
 
-              <Box sx={{
-                display: 'flex',
-                gap: 1,
-                mb: 3,
-                justifyContent: { xs: 'center', sm: 'flex-start' }
-              }}>
-                <Typography color="text.secondary">
-                  Don't have an account?
-                </Typography>
-                <Link href="/register" color="primary" underline="none">
-                  Sign Up!
-                </Link>
-              </Box>
+              <Typography 
+                color="text.secondary" 
+                sx={{ 
+                  mb: 3, 
+                  textAlign: { xs: 'center', sm: 'left' } 
+                }}
+              >
+                Enter your reset token and create a new password
+              </Typography>
 
               <TextField
                 fullWidth
-                name="email"
-                label="Email Address"
-                type="email"
+                name="token"
+                label="Reset Token"
                 variant="outlined"
                 margin="normal"
-                value={formData.email}
+                value={formData.token}
                 onChange={handleChange}
                 required
                 sx={{
@@ -248,23 +220,23 @@ const Login = () => {
 
               <TextField
                 fullWidth
-                name="password"
-                label="Password"
-                type={showPassword ? "text" : "password"}
+                name="newPassword"
+                label="New Password"
+                type={showNewPassword ? "text" : "password"}
                 variant="outlined"
                 margin="normal"
-                value={formData.password}
+                value={formData.newPassword}
                 onChange={handleChange}
                 required
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleTogglePasswordVisibility}
+                        aria-label="toggle new password visibility"
+                        onClick={handleToggleNewPasswordVisibility}
                         edge="end"
                       >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -277,15 +249,36 @@ const Login = () => {
                 }}
               />
 
-              <Box sx={{
-                textAlign: 'right',
-                mt: 1,
-                mb: 3
-              }}>
-                <Link href="/email-verification" color="primary" underline="none">
-                  Forgot Password?
-                </Link>
-              </Box>
+              <TextField
+                fullWidth
+                name="confirmPassword"
+                label="Confirm New Password"
+                type={showConfirmPassword ? "text" : "password"}
+                variant="outlined"
+                margin="normal"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirm password visibility"
+                        onClick={handleToggleConfirmPasswordVisibility}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  '& .MuiOutlinedInput-root': {
+                    height: { xs: '48px', sm: '56px' }
+                  }
+                }}
+              />
 
               <Button
                 type="submit"
@@ -294,6 +287,7 @@ const Login = () => {
                 size="large"
                 disabled={loading}
                 sx={{
+                  mt: 3,
                   borderRadius: 2,
                   py: { xs: 1.2, sm: 1.5 },
                   backgroundColor: '#0045FF',
@@ -315,51 +309,18 @@ const Login = () => {
                         left: 'calc(50% - 12px)'
                       }}
                     />
-                    <span style={{ visibility: 'hidden' }}>Login</span>
+                    <span style={{ visibility: 'hidden' }}>Reset Password</span>
                   </>
-                ) : 'Login'}
+                ) : 'Reset Password'}
               </Button>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  my: 3
-                }}
-              >
-                <Divider sx={{ flex: 1 }} />
-                <Typography color="text.secondary">Or</Typography>
-                <Divider sx={{ flex: 1 }} />
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: { xs: 3, sm: 2 }
-                }}
-              >
-                <IconButton
-                  sx={{
-                    bgcolor: 'background.paper',
-                    '&:hover': { bgcolor: 'background.paper' },
-                    width: { xs: 48, sm: 56 },
-                    height: { xs: 48, sm: 56 }
-                  }}
-                >
-                  <img src={googleicon} alt="Login with Google" style={{ width: '60%', height: '60%' }} />
-                </IconButton>
-                <IconButton
-                  sx={{
-                    bgcolor: 'background.paper',
-                    '&:hover': { bgcolor: 'background.paper' },
-                    width: { xs: 48, sm: 56 },
-                    height: { xs: 48, sm: 56 }
-                  }}
-                >
-                  <img src={facebookicon} alt="Login with Facebook" style={{ width: '60%', height: '60%' }} />
-                </IconButton>
+              <Box sx={{
+                textAlign: 'center',
+                mt: 2
+              }}>
+                <Link href="/login" color="primary" underline="none">
+                  Back to Login
+                </Link>
               </Box>
             </Box>
           </Box>
@@ -384,7 +345,7 @@ const Login = () => {
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-            Login successful! Redirecting...
+            Password reset successful! Redirecting to login...
           </Alert>
         </Snackbar>
       </Box>
@@ -392,4 +353,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default CreateNewPassword;
