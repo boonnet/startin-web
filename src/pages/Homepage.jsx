@@ -1,176 +1,222 @@
-import React from 'react'
-import '../App.css'
+import React from "react";
+import "../App.css";
 import {
-  Box, Typography, Divider, Container, useTheme, useMediaQuery, Grid, Card, CardContent, CardMedia, Chip, Stack, Checkbox, Avatar, Rating, IconButton, Button
-} from '@mui/material';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'
-import { styled } from '@mui/material/styles';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import homeimg from '../assets/homeimg.png'
-import { Rocket, Users } from 'lucide-react';
-import AnimatedButton from '../components/Button'
-import StarIcon from '@mui/icons-material/Star';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import leftpng from '../assets/left.png'
-import centerpng from '../assets/center.png'
-import rightpng from '../assets/right.png'
-import loginbg from '../assets/loginbg.png'
-import CheckIcon from '@mui/icons-material/Check';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
-import computerpng from '../assets/computer.png'
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import baseurl from '../ApiService/ApiService';
-import axios from 'axios';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import DescriptionIcon from '@mui/icons-material/Description';
+  Box,
+  Typography,
+  Divider,
+  Container,
+  useTheme,
+  useMediaQuery,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Paper,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Checkbox,
+  Avatar,
+  Rating,
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { styled } from "@mui/material/styles";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import homeimg from "../assets/homeimg.png";
+import { Rocket, Users } from "lucide-react";
+import AnimatedButton from "../components/Button";
+import StarIcon from "@mui/icons-material/Star";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import leftpng from "../assets/left.png";
+import centerpng from "../assets/center.png";
+import rightpng from "../assets/right.png";
+import loginbg from "../assets/loginbg.png";
+import CheckIcon from "@mui/icons-material/Check";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
+import computerpng from "../assets/computer.png";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import baseurl from "../ApiService/ApiService";
+import axios from "axios";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 const Homepage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
   const [activeSlide, setActiveSlide] = useState(0);
   const [ratingsLoading, setRatingsLoading] = useState(true);
   const [ratingsError, setRatingsError] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const cardsPerPage = 3;
 
   const BlueEllipse = styled(Box)(({ theme }) => ({
-    position: 'absolute',
-    width: '440px',
-    height: '440px',
-    right: '0',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    borderRadius: '50%',
-    backgroundColor: '#0133DC',
+    position: "absolute",
+    width: "440px",
+    height: "440px",
+    right: "0",
+    top: "50%",
+    transform: "translateY(-50%)",
+    borderRadius: "50%",
+    backgroundColor: "#0133DC",
     zIndex: 1,
-    [theme.breakpoints.down('lg')]: {
-      width: '360px',
-      height: '360px',
+    [theme.breakpoints.down("lg")]: {
+      width: "360px",
+      height: "360px",
     },
-    [theme.breakpoints.down('md')]: {
-      width: '280px',
-      height: '280px',
-      right: '-100px',
+    [theme.breakpoints.down("md")]: {
+      width: "280px",
+      height: "280px",
+      right: "-100px",
     },
-    [theme.breakpoints.down('sm')]: {
-      width: '200px',
-      height: '200px',
-      right: '-50px',
+    [theme.breakpoints.down("sm")]: {
+      width: "200px",
+      height: "200px",
+      right: "-50px",
     },
   }));
 
   const PinkEllipse = styled(Box)(({ theme }) => ({
-    position: 'absolute',
-    width: '240px',
-    height: '240px',
-    left: '10px',
-    right: '10px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    borderRadius: '50%',
-    backgroundColor: '#FF52F8',
+    position: "absolute",
+    width: "240px",
+    height: "240px",
+    left: "10px",
+    right: "10px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    borderRadius: "50%",
+    backgroundColor: "#FF52F8",
     zIndex: 1,
-    [theme.breakpoints.down('lg')]: {
-      width: '200px',
-      height: '200px',
+    [theme.breakpoints.down("lg")]: {
+      width: "200px",
+      height: "200px",
     },
-    [theme.breakpoints.down('md')]: {
-      width: '160px',
-      height: '160px',
+    [theme.breakpoints.down("md")]: {
+      width: "160px",
+      height: "160px",
     },
-    [theme.breakpoints.down('sm')]: {
-      width: '120px',
-      height: '120px',
+    [theme.breakpoints.down("sm")]: {
+      width: "120px",
+      height: "120px",
     },
   }));
 
   const StatBox = styled(Box)(({ theme, position }) => ({
-    backgroundColor: 'white',
-    borderRadius: '15px',
-    padding: '15px 20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.15)',
-    position: 'absolute',
+    backgroundColor: "white",
+    borderRadius: "15px",
+    padding: "15px 20px",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.15)",
+    position: "absolute",
     zIndex: 3,
-    transition: 'transform 0.3s ease',
-    '&:hover': {
-      transform: 'translateY(-5px)',
+    transition: "transform 0.3s ease",
+    "&:hover": {
+      transform: "translateY(-5px)",
     },
-    ...(position === 'top' && {
-      top: '342px',
-      right: '290px',
-      [theme.breakpoints.down('lg')]: {
-        top: '300px',
-        right: '200px',
+    ...(position === "top" && {
+      top: "342px",
+      right: "290px",
+      [theme.breakpoints.down("lg")]: {
+        top: "300px",
+        right: "200px",
       },
-      [theme.breakpoints.down('md')]: {
-        top: '250px',
-        right: '150px',
+      [theme.breakpoints.down("md")]: {
+        top: "250px",
+        right: "150px",
       },
-      [theme.breakpoints.down('sm')]: {
-        top: '200px',
-        right: '80px',
-        padding: '10px 15px',
+      [theme.breakpoints.down("sm")]: {
+        top: "200px",
+        right: "80px",
+        padding: "10px 15px",
       },
     }),
-    ...(position === 'bottom' && {
-      top: '180px',
-      right: '-70px',
-      [theme.breakpoints.down('lg')]: {
-        top: '150px',
-        right: '0px',
+    ...(position === "bottom" && {
+      top: "180px",
+      right: "-70px",
+      [theme.breakpoints.down("lg")]: {
+        top: "150px",
+        right: "0px",
       },
-      [theme.breakpoints.down('md')]: {
-        top: '120px',
-        right: '-60px',
+      [theme.breakpoints.down("md")]: {
+        top: "120px",
+        right: "-60px",
       },
-      [theme.breakpoints.down('sm')]: {
-        top: '100px',
-        right: '-40px',
-        padding: '10px 15px',
+      [theme.breakpoints.down("sm")]: {
+        top: "100px",
+        right: "-40px",
+        padding: "10px 15px",
       },
     }),
   }));
 
   const IconWrapper = styled(Box)(({ theme }) => ({
-    borderRadius: '12px',
-    padding: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    [theme.breakpoints.down('sm')]: {
-      padding: '8px',
+    borderRadius: "12px",
+    padding: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    [theme.breakpoints.down("sm")]: {
+      padding: "8px",
     },
   }));
 
   // Styled component for course cards
   const CourseCard = styled(Card)(({ theme }) => ({
     borderRadius: 8,
-    border: '1px solid #e5e7eb',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    cursor: 'pointer',
-    transition: 'transform 0.3s, box-shadow 0.3s',
-    boxShadow: 'none',
-    '&:hover': {
-      transform: 'translateY(-5px)',
-      boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+    border: "1px solid #e5e7eb",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    cursor: "pointer",
+    transition: "transform 0.3s, box-shadow 0.3s",
+    boxShadow: "none",
+    "&:hover": {
+      transform: "translateY(-5px)",
+      boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
     },
   }));
 
+  // Function to truncate text to 3 lines and add ellipsis
+  const truncateText = (text) => {
+    const lines = text.split("\n");
+    const words = text.split(" ");
+
+    // Estimate 3 lines (roughly 15-20 words depending on length)
+    const truncated = words.slice(0, 20).join(" ");
+
+    if (words.length > 20) {
+      return truncated + "...";
+    }
+    return text;
+  };
+
+  const handleReadMore = (review, username) => {
+    setSelectedReview({ text: review, username: username });
+    setOpenModal(true);
+  };
 
   // Handle heart icon click for courses
   const handleCourseFavoriteToggle = async (event, course) => {
@@ -179,8 +225,8 @@ const Homepage = () => {
     if (!userId) {
       setSnackbar({
         open: true,
-        message: 'Please login to add favorites',
-        severity: 'warning'
+        message: "Please login to add favorites",
+        severity: "warning",
       });
       return;
     }
@@ -190,57 +236,67 @@ const Homepage = () => {
 
       if (isFavorite) {
         // Find the favorite ID
-        const favoriteResponse = await axios.get(`${baseurl}/api/favorites/check/course?user_id=${userId}&course_id=${course.id}`, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        const favoriteResponse = await axios.get(
+          `${baseurl}/api/favorites/check/course?user_id=${userId}&course_id=${course.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        });
+        );
 
         if (favoriteResponse.data && favoriteResponse.data.data) {
           // Delete from favorites
-          await axios.delete(`${baseurl}/api/favorites/delete/${favoriteResponse.data.data.id}`, {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+          await axios.delete(
+            `${baseurl}/api/favorites/delete/${favoriteResponse.data.data.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
-          });
+          );
 
           // Update local state
-          setFavoriteCourses(prevFavorites =>
-            prevFavorites.filter(id => id.toString() !== course.id.toString())
+          setFavoriteCourses((prevFavorites) =>
+            prevFavorites.filter((id) => id.toString() !== course.id.toString())
           );
 
           setSnackbar({
             open: true,
-            message: 'Removed from favorites',
-            severity: 'success'
+            message: "Removed from favorites",
+            severity: "success",
           });
         }
       } else {
         // Add to favorites
-        await axios.post(`${baseurl}/api/favorites/add`, {
-          user_id: userId,
-          course_id: course.id
-        }, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        await axios.post(
+          `${baseurl}/api/favorites/add`,
+          {
+            user_id: userId,
+            course_id: course.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        });
+        );
 
         // Update local state
-        setFavoriteCourses(prevFavorites => [...prevFavorites, course.id]);
+        setFavoriteCourses((prevFavorites) => [...prevFavorites, course.id]);
 
         setSnackbar({
           open: true,
-          message: 'Added to favorites',
-          severity: 'success'
+          message: "Added to favorites",
+          severity: "success",
         });
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
       setSnackbar({
         open: true,
-        message: 'Error updating favorites',
-        severity: 'error'
+        message: "Error updating favorites",
+        severity: "error",
       });
     }
   };
@@ -252,8 +308,8 @@ const Homepage = () => {
     if (!userId) {
       setSnackbar({
         open: true,
-        message: 'Please login to add favorites',
-        severity: 'warning'
+        message: "Please login to add favorites",
+        severity: "warning",
       });
       return;
     }
@@ -263,64 +319,81 @@ const Homepage = () => {
 
       if (isFavorite) {
         // Find the favorite ID
-        const favoriteResponse = await axios.get(`${baseurl}/api/favorites/check/template?user_id=${userId}&template_id=${template.id}`, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        const favoriteResponse = await axios.get(
+          `${baseurl}/api/favorites/check/template?user_id=${userId}&template_id=${template.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        });
+        );
 
         if (favoriteResponse.data && favoriteResponse.data.data) {
           // Delete from favorites
-          await axios.delete(`${baseurl}/api/favorites/delete/${favoriteResponse.data.data.id}`, {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+          await axios.delete(
+            `${baseurl}/api/favorites/delete/${favoriteResponse.data.data.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
-          });
+          );
 
           // Update local state
-          setFavoriteTemplates(prevFavorites =>
-            prevFavorites.filter(id => id.toString() !== template.id.toString())
+          setFavoriteTemplates((prevFavorites) =>
+            prevFavorites.filter(
+              (id) => id.toString() !== template.id.toString()
+            )
           );
 
           setSnackbar({
             open: true,
-            message: 'Removed from favorites',
-            severity: 'success'
+            message: "Removed from favorites",
+            severity: "success",
           });
         }
       } else {
         // Add to favorites
-        await axios.post(`${baseurl}/api/favorites/add`, {
-          user_id: userId,
-          template_id: template.id
-        }, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        await axios.post(
+          `${baseurl}/api/favorites/add`,
+          {
+            user_id: userId,
+            template_id: template.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        });
+        );
 
         // Update local state
-        setFavoriteTemplates(prevFavorites => [...prevFavorites, template.id]);
+        setFavoriteTemplates((prevFavorites) => [
+          ...prevFavorites,
+          template.id,
+        ]);
 
         setSnackbar({
           open: true,
-          message: 'Added to favorites',
-          severity: 'success'
+          message: "Added to favorites",
+          severity: "success",
         });
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
       setSnackbar({
         open: true,
-        message: 'Error updating favorites',
-        severity: 'error'
+        message: "Error updating favorites",
+        severity: "error",
       });
     }
   };
 
   // Check if template is favorited
   const isTemplateFavorite = (templateId) => {
-    return favoriteTemplates.some(id => id && templateId && id.toString() === templateId.toString());
+    return favoriteTemplates.some(
+      (id) => id && templateId && id.toString() === templateId.toString()
+    );
   };
 
   // Handle buy now button click for templates
@@ -333,18 +406,18 @@ const Homepage = () => {
     {
       title: "Quality Education",
       description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
-      id: "quality"
+      id: "quality",
     },
     {
       title: "Learn more Anywhere",
       description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
-      id: "learn"
+      id: "learn",
     },
     {
       title: "Free Trial Courses",
       description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
-      id: "free"
-    }
+      id: "free",
+    },
   ];
 
   const [courses, setCourses] = useState([]);
@@ -369,7 +442,9 @@ const Homepage = () => {
       if (userData) {
         const parsedUserData = JSON.parse(userData);
         // Return user ID from the userData object
-        return parsedUserData.id || parsedUserData.user_id || parsedUserData._id;
+        return (
+          parsedUserData.id || parsedUserData.user_id || parsedUserData._id
+        );
       }
 
       // Alternatively, check for a JWT token
@@ -401,20 +476,23 @@ const Homepage = () => {
   // Check if template is enrolled
   const isTemplateEnrolled = (templateId) => {
     // Convert to string for comparison if needed
-    return enrolledTemplates.some(id => id && templateId && id.toString() === templateId.toString());
+    return enrolledTemplates.some(
+      (id) => id && templateId && id.toString() === templateId.toString()
+    );
   };
 
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'success'
+    message: "",
+    severity: "success",
   });
 
   // Check if course is favorited
   const isCourseFavorite = (courseId) => {
-    return favoriteCourses.some(id => id && courseId && id.toString() === courseId.toString());
+    return favoriteCourses.some(
+      (id) => id && courseId && id.toString() === courseId.toString()
+    );
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -430,8 +508,13 @@ const Homepage = () => {
         setCoursesLoading(false);
 
         // Fetch templates
-        const templateResponse = await axios.get(`${baseurl}/api/templates/all`);
-        if (templateResponse.data && Array.isArray(templateResponse.data.templates)) {
+        const templateResponse = await axios.get(
+          `${baseurl}/api/templates/all`
+        );
+        if (
+          templateResponse.data &&
+          Array.isArray(templateResponse.data.templates)
+        ) {
           setTemplates(templateResponse.data.templates);
         }
         setTemplatesLoading(false);
@@ -441,11 +524,16 @@ const Homepage = () => {
 
         // Fetch enrollments (for both courses & templates)
         try {
-          const enrollmentResponse = await axios.get(`${baseurl}/api/enrollment/all`, {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+          const enrollmentResponse = await axios.get(
+            `${baseurl}/api/enrollment/all`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
-          });
+          );
+
+          console.log("All enrollments response:", enrollmentResponse.data);
 
           // Process enrollments data
           if (enrollmentResponse.data && enrollmentResponse.data.data) {
@@ -454,27 +542,45 @@ const Homepage = () => {
             // Filter enrollments for the current user
             if (userId) {
               const userEnrollments = enrollmentResponse.data.data.filter(
-                enrollment => enrollment.user_id === userId ||
+                (enrollment) =>
+                  enrollment.user_id === userId ||
                   (enrollment.User && enrollment.User.id === userId)
               );
 
               // Extract template IDs from user enrollments
               const enrolledTemplateIds = userEnrollments
-                .filter(enrollment => enrollment.template_id ||
-                  (enrollment.Template && enrollment.Template.id))
-                .map(enrollment => enrollment.template_id ||
-                  (enrollment.Template && enrollment.Template.id));
+                .filter(
+                  (enrollment) =>
+                    enrollment.template_id ||
+                    (enrollment.Template && enrollment.Template.id)
+                )
+                .map(
+                  (enrollment) =>
+                    enrollment.template_id ||
+                    (enrollment.Template && enrollment.Template.id)
+                );
 
               setEnrolledTemplates(enrolledTemplateIds);
+              console.log(
+                "Current user enrolled templates:",
+                enrolledTemplateIds
+              );
 
               // Extract course IDs from user enrollments
               const enrolledCourseIds = userEnrollments
-                .filter(enrollment => enrollment.course_id ||
-                  (enrollment.Course && enrollment.Course.id))
-                .map(enrollment => enrollment.course_id ||
-                  (enrollment.Course && enrollment.Course.id));
+                .filter(
+                  (enrollment) =>
+                    enrollment.course_id ||
+                    (enrollment.Course && enrollment.Course.id)
+                )
+                .map(
+                  (enrollment) =>
+                    enrollment.course_id ||
+                    (enrollment.Course && enrollment.Course.id)
+                );
 
               setEnrolledCourses(enrolledCourseIds);
+              console.log("Current user enrolled courses:", enrolledCourseIds);
             }
           }
         } catch (err) {
@@ -485,37 +591,44 @@ const Homepage = () => {
         if (userId) {
           try {
             // Fetch all favorites
-            const favoritesResponse = await axios.get(`${baseurl}/api/favorites/all`, {
-              headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            const favoritesResponse = await axios.get(
+              `${baseurl}/api/favorites/all`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
               }
-            });
+            );
 
             if (favoritesResponse.data && favoritesResponse.data.data) {
               // Filter favorites for the current user
               const userFavorites = favoritesResponse.data.data.filter(
-                favorite => favorite.user_id === userId
+                (favorite) => favorite.user_id === userId
               );
 
               // Extract favorite course IDs
               const favoriteCourseIds = userFavorites
-                .filter(favorite => favorite.course_id)
-                .map(favorite => favorite.course_id);
+                .filter((favorite) => favorite.course_id)
+                .map((favorite) => favorite.course_id);
 
-              setFavoriteCourses(favoriteCourseIds);;
+              setFavoriteCourses(favoriteCourseIds);
+              console.log("Current user favorite courses:", favoriteCourseIds);
 
               // Extract favorite template IDs
               const favoriteTemplateIds = userFavorites
-                .filter(favorite => favorite.template_id)
-                .map(favorite => favorite.template_id);
+                .filter((favorite) => favorite.template_id)
+                .map((favorite) => favorite.template_id);
 
               setFavoriteTemplates(favoriteTemplateIds);
+              console.log(
+                "Current user favorite templates:",
+                favoriteTemplateIds
+              );
             }
           } catch (err) {
             console.error("Error fetching favorites:", err);
           }
         }
-
       } catch (err) {
         console.error("Error fetching data:", err);
         if (err.message.includes("course")) {
@@ -523,7 +636,9 @@ const Homepage = () => {
           setCoursesLoading(false);
         }
         if (err.message.includes("templates")) {
-          setTemplatesError("Failed to load templates. Please try again later.");
+          setTemplatesError(
+            "Failed to load templates. Please try again later."
+          );
           setTemplatesLoading(false);
         }
       }
@@ -553,7 +668,9 @@ const Homepage = () => {
 
   const isCourseEnrolled = (courseId) => {
     // Convert to string for comparison if needed
-    return enrolledCourses.some(id => id && courseId && id.toString() === courseId.toString());
+    return enrolledCourses.some(
+      (id) => id && courseId && id.toString() === courseId.toString()
+    );
   };
 
   // Handle buy now button click for courses
@@ -573,103 +690,113 @@ const Homepage = () => {
     }
   };
 
-
   const features = [
-    'Morem Ipsum Dolor Sit Amet',
-    'Morem Ipsum Dolor Sit Amet',
-    'Morem Ipsum Dolor Sit Amet',
-    'Morem Ipsum Dolor Sit Amet',
+    "Morem Ipsum Dolor Sit Amet",
+    "Morem Ipsum Dolor Sit Amet",
+    "Morem Ipsum Dolor Sit Amet",
+    "Morem Ipsum Dolor Sit Amet",
   ];
 
   const items = ["Morem Ipsum Dolor Sit Amet", "Morem Ipsum Dolor Sit Amet"];
 
-  const testimonials = [
-    {
-      id: 1,
-      text: "Fusce volutpat lectus et nisl consectetur finibus. In vitae scelerisque augue, in varius eros. Nunc sapien diam, euismod et pretium id, volutpat et tortor. In vulputate lorem quis dui vestibulum.",
-      author: "John Doe",
-      rating: 5,
-      image: "https://i.pravatar.cc/150?img=32"
-    },
-    {
-      id: 2,
-      text: "Fusce volutpat lectus et nisl consectetur finibus. In vitae scelerisque augue, in varius eros. Nunc sapien diam, euismod et pretium id, volutpat et tortor. In vulputate lorem quis dui vestibulum.",
-      author: "John Doe",
-      rating: 5,
-      image: "https://i.pravatar.cc/150?img=32"
-    },
-    {
-      id: 3,
-      text: "Fusce volutpat lectus et nisl consectetur finibus. In vitae scelerisque augue, in varius eros. Nunc sapien diam, euismod et pretium id, volutpat et tortor. In vulputate lorem quis dui vestibulum.",
-      author: "John Doe",
-      rating: 5,
-      image: "https://i.pravatar.cc/150?img=32"
-    }
-  ];
-
-  const handlePrev = () => {
-    setActiveSlide((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
-  };
+  // Handle pagination
+  const totalPages = Math.ceil(ratings.length / cardsPerPage);
 
   const handleNext = () => {
-    setActiveSlide((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+    setCurrentPage((prev) => (prev + 1) % totalPages);
   };
+
+  const handlePrev = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  // Get current testimonials to display
+  const currentTestimonials =
+    (currentPage * cardsPerPage, currentPage * cardsPerPage + cardsPerPage);
 
   // Function to calculate average rating
   const calculateAverageRating = (ratings) => {
-    if (!ratings || !Array.isArray(ratings) || ratings.length === 0) return "N/A"; // Return "N/A" if there are no ratings
+    if (!ratings || !Array.isArray(ratings) || ratings.length === 0)
+      return "N/A"; // Return "N/A" if there are no ratings
     const total = ratings.reduce((acc, rating) => acc + rating.rating, 0);
     return (total / ratings.length).toFixed(1); // Return average rounded to 1 decimal place
   };
+
+  // Chart component for subject statistics
+const SubjectChart = () => {
+  return (
+    <Box sx={{ position: 'relative', textAlign: 'center', width: 200, height: 200, margin: '0 auto' }}>
+      <svg width="200" height="200" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="70" fill="none" stroke="#e0e0e0" strokeWidth="20" />
+        <circle cx="100" cy="100" r="70" fill="none" stroke="#5ee7d8" strokeWidth="20" strokeDasharray="440" strokeDashoffset="110" />
+        <circle cx="100" cy="100" r="70" fill="none" stroke="#9575cd" strokeWidth="20" strokeDasharray="440" strokeDashoffset="220" transform="rotate(-110 100 100)" />
+        <circle cx="100" cy="100" r="70" fill="none" stroke="#ffd54f" strokeWidth="20" strokeDasharray="440" strokeDashoffset="330" transform="rotate(-220 100 100)" />
+      </svg>
+      <Typography 
+        variant="h3" 
+        sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          fontWeight: 'bold',
+          color: '#333'
+        }}
+      >
+        30d
+      </Typography>
+    </Box>
+  );
+};
 
   return (
     <>
       <Navbar transparent={true} />
       {/* Section 1 */}
-      <Box sx={{ width: '100%', }}>
+      <Box sx={{ width: "100%" }}>
         <Container
           maxWidth={false}
           disableGutters
           sx={{
-            overflow: 'none',
+            overflow: "none",
             background: `url(${loginbg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <Box
             sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              minHeight: { xs: '400px', md: '600px' },
-              position: 'relative',
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              justifyContent: "space-between",
+              alignItems: "center",
+              minHeight: { xs: "400px", md: "600px" },
+              position: "relative",
               py: { xs: 4, md: 8 },
               gap: { xs: 4, md: 0 },
-              maxWidth: 'lg',
-              mx: 'auto',
+              maxWidth: "lg",
+              mx: "auto",
             }}
           >
             {/* Left Content */}
             <Box
               sx={{
-                maxWidth: '550px',
+                maxWidth: "550px",
                 zIndex: 2,
                 px: { xs: 2, md: 0 },
-                textAlign: { xs: 'center', md: 'left' },
+                textAlign: { xs: "center", md: "left" },
               }}
             >
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '32px', sm: '40px', md: '48px' },
-                  fontWeight: 'bold',
+                  fontSize: { xs: "32px", sm: "40px", md: "48px" },
+                  fontWeight: "bold",
                   mb: 3,
                   lineHeight: 1.2,
                 }}
               >
-                Unlock your startup's potential with premier{' '}
+                Unlock your startup's potential with premier{" "}
                 <Box
                   component="span"
                   sx={{
@@ -680,19 +807,22 @@ const Homepage = () => {
                   }}
                 >
                   fundraising
-                </Box>{' '}
+                </Box>{" "}
                 strategies.
               </Typography>
 
-              <AnimatedButton buttonText="EXPLORE NOW" onClick={() => navigate('/')} />
+              <AnimatedButton
+                buttonText="EXPLORE NOW"
+                onClick={() => navigate("/")}
+              />
             </Box>
 
             {/* Right Content */}
             <Box
               sx={{
-                position: 'relative',
-                width: { xs: '300px', sm: '400px', md: '500px' },
-                height: { xs: '300px', sm: '400px', md: '500px' },
+                position: "relative",
+                width: { xs: "300px", sm: "400px", md: "500px" },
+                height: { xs: "300px", sm: "400px", md: "500px" },
                 mt: { xs: 4, md: 0 },
               }}
             >
@@ -703,18 +833,18 @@ const Homepage = () => {
               <StatBox position="top">
                 <IconWrapper>
                   <Rocket
-                    color='#00FFD1'
-                    width={isMobile ? '30px' : '50px'}
-                    height={isMobile ? '30px' : '50px'}
+                    color="#00FFD1"
+                    width={isMobile ? "30px" : "50px"}
+                    height={isMobile ? "30px" : "50px"}
                   />
                 </IconWrapper>
                 <Box>
                   <Typography
                     variant="h6"
                     sx={{
-                      fontSize: { xs: '20px', sm: '24px', md: '28px' },
-                      fontWeight: 'bold',
-                      color: '#333'
+                      fontSize: { xs: "20px", sm: "24px", md: "28px" },
+                      fontWeight: "bold",
+                      color: "#333",
                     }}
                   >
                     100+
@@ -722,8 +852,8 @@ const Homepage = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: '#666',
-                      fontSize: { xs: '12px', sm: '14px', md: '16px' }
+                      color: "#666",
+                      fontSize: { xs: "12px", sm: "14px", md: "16px" },
                     }}
                   >
                     Entrepreneurs
@@ -734,18 +864,18 @@ const Homepage = () => {
               <StatBox position="bottom">
                 <IconWrapper>
                   <Users
-                    color='#00FFD1'
-                    width={isMobile ? '30px' : '50px'}
-                    height={isMobile ? '30px' : '50px'}
+                    color="#00FFD1"
+                    width={isMobile ? "30px" : "50px"}
+                    height={isMobile ? "30px" : "50px"}
                   />
                 </IconWrapper>
                 <Box>
                   <Typography
                     variant="h6"
                     sx={{
-                      fontSize: { xs: '20px', sm: '24px', md: '28px' },
-                      fontWeight: 'bold',
-                      color: '#333'
+                      fontSize: { xs: "20px", sm: "24px", md: "28px" },
+                      fontWeight: "bold",
+                      color: "#333",
                     }}
                   >
                     15+
@@ -753,8 +883,8 @@ const Homepage = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: '#666',
-                      fontSize: { xs: '12px', sm: '14px', md: '16px' }
+                      color: "#666",
+                      fontSize: { xs: "12px", sm: "14px", md: "16px" },
                     }}
                   >
                     Courses
@@ -768,15 +898,15 @@ const Homepage = () => {
                 src={homeimg}
                 alt="Fundraising Team"
                 sx={{
-                  position: 'absolute',
-                  top: '38%',
-                  right: { xs: '-4px', md: '-8px' },
-                  left: { xs: '20px', md: '0px' },
-                  transform: 'translateY(-50%)',
-                  width: '100%',
-                  height: '100%',
+                  position: "absolute",
+                  top: "38%",
+                  right: { xs: "-4px", md: "-8px" },
+                  left: { xs: "20px", md: "0px" },
+                  transform: "translateY(-50%)",
+                  width: "100%",
+                  height: "100%",
                   zIndex: 2,
-                  objectFit: 'contain',
+                  objectFit: "contain",
                 }}
               />
             </Box>
@@ -785,22 +915,26 @@ const Homepage = () => {
       </Box>
       {/* Section 2 */}
       <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Box sx={{
-          display: 'flex',
-          width: '100%',
-          flexDirection: isMobile ? 'column' : 'row'
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            width: "100%",
+            flexDirection: isMobile ? "column" : "row",
+          }}
+        >
           {cardData.map((card, index) => (
             <React.Fragment key={card.id}>
-              <Box sx={{
-                flex: 1,
-                p: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                mb: isMobile ? 2 : 0
-              }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  p: 3,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  mb: isMobile ? 2 : 0,
+                }}
+              >
                 <Box>
                   <Typography
                     variant="h5"
@@ -808,7 +942,11 @@ const Homepage = () => {
                     sx={{
                       fontWeight: 600,
                       mb: 2,
-                      fontSize: isMobile ? '1.1rem' : isTablet ? '1.3rem' : '1.5rem'
+                      fontSize: isMobile
+                        ? "1.1rem"
+                        : isTablet
+                        ? "1.3rem"
+                        : "1.5rem",
                     }}
                   >
                     {card.title}
@@ -818,7 +956,7 @@ const Homepage = () => {
                     color="text.secondary"
                     sx={{
                       mb: 3,
-                      fontSize: isMobile ? '0.875rem' : '1rem'
+                      fontSize: isMobile ? "0.875rem" : "1rem",
                     }}
                   >
                     {card.description}
@@ -826,62 +964,82 @@ const Homepage = () => {
                 </Box>
                 <AnimatedButton
                   buttonText="EXPLORE NOW"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate("/")}
                 />
               </Box>
               {!isMobile && index < cardData.length - 1 && (
                 <Divider orientation="vertical" flexItem />
               )}
               {isMobile && index < cardData.length - 1 && (
-                <Divider sx={{ width: '100%', my: 2 }} />
+                <Divider sx={{ width: "100%", my: 2 }} />
               )}
             </React.Fragment>
           ))}
         </Box>
       </Container>
       {/* Section 3 */}
-      <Box sx={{ backgroundColor: '#f8f9fb' }}>
+      <Box sx={{ backgroundColor: "#f8f9fb" }}>
         <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
           <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
             {/* Left Side - Images (hidden on mobile) */}
-            <Grid item xs={12} md={5} sx={{ display: { xs: 'none', md: 'block' } }}>
-              <Box sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                height: { xs: 'auto', md: '100%' },
-                gap: { xs: 2, sm: 1 },
-                mb: { xs: 2, md: 0 }
-              }}>
+            <Grid
+              item
+              xs={12}
+              md={5}
+              sx={{ display: { xs: "none", md: "block" } }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  height: { xs: "auto", md: "100%" },
+                  gap: { xs: 2, sm: 1 },
+                  mb: { xs: 2, md: 0 },
+                }}
+              >
                 {/* First panel */}
-                <Box sx={{
-                  width: { xs: '100%', sm: '33%' },
-                  height: { xs: 200, sm: 'auto' },
-                  position: 'relative',
-                  borderRadius: 2,
-                  mb: { xs: 2, sm: 0 }
-                }}>
-                  <Box sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "33%" },
+                    height: { xs: 200, sm: "auto" },
+                    position: "relative",
                     borderRadius: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-                      <Box component="img" src={leftpng} alt="Financial chart overlay"
+                    mb: { xs: 2, sm: 0 },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={leftpng}
+                        alt="Financial chart overlay"
                         sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                           borderRadius: 2,
                           opacity: 0.9,
-                          filter: 'brightness(1.5) contrast(1.2)',
-                          position: 'relative',
-                          zIndex: 1
+                          filter: "brightness(1.5) contrast(1.2)",
+                          position: "relative",
+                          zIndex: 1,
                         }}
                       />
                     </Box>
@@ -889,36 +1047,49 @@ const Homepage = () => {
                 </Box>
 
                 {/* Middle panel */}
-                <Box sx={{
-                  width: { xs: '100%', sm: '33%' },
-                  height: { xs: 150, sm: 'auto' },
-                  position: 'relative',
-                  borderRadius: 2,
-                  mb: { xs: 2, sm: 0 },
-                  mx: { sm: 1 }
-                }}>
-                  <Box sx={{
-                    position: 'absolute',
-                    top: '40px',
-                    left: 0,
-                    width: '100%',
-                    height: '85%',
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "33%" },
+                    height: { xs: 150, sm: "auto" },
+                    position: "relative",
                     borderRadius: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-                      <Box component="img" src={centerpng} alt="Person with glasses overlay"
+                    mb: { xs: 2, sm: 0 },
+                    mx: { sm: 1 },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "40px",
+                      left: 0,
+                      width: "100%",
+                      height: "85%",
+                      borderRadius: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={centerpng}
+                        alt="Person with glasses overlay"
                         sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                           borderRadius: 2,
                           opacity: 0.9,
-                          filter: 'brightness(1.5) contrast(1.2)',
-                          position: 'relative',
-                          zIndex: 1
+                          filter: "brightness(1.5) contrast(1.2)",
+                          position: "relative",
+                          zIndex: 1,
                         }}
                       />
                     </Box>
@@ -926,34 +1097,47 @@ const Homepage = () => {
                 </Box>
 
                 {/* Right panel */}
-                <Box sx={{
-                  width: { xs: '100%', sm: '33%' },
-                  height: { xs: 200, sm: 'auto' },
-                  position: 'relative',
-                  borderRadius: 2
-                }}>
-                  <Box sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "33%" },
+                    height: { xs: 200, sm: "auto" },
+                    position: "relative",
                     borderRadius: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-                      <Box component="img" src={rightpng} alt="Financial graph overlay"
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={rightpng}
+                        alt="Financial graph overlay"
                         sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                           borderRadius: 2,
                           opacity: 0.9,
-                          filter: 'brightness(1.5) contrast(1.2)',
-                          position: 'relative',
-                          zIndex: 1
+                          filter: "brightness(1.5) contrast(1.2)",
+                          position: "relative",
+                          zIndex: 1,
                         }}
                       />
                     </Box>
@@ -966,110 +1150,152 @@ const Homepage = () => {
             <Grid item xs={12} md={7}>
               <Box sx={{ pl: { md: 4 }, mt: { xs: 0, md: 2 } }}>
                 {/* Headline */}
-                <Typography variant="h2" component="h1" sx={{
-                  fontWeight: 700,
-                  mb: 1,
-                  fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
-                  lineHeight: { xs: 1.2, md: 1.3 }
-                }}>
+                <Typography
+                  variant="h2"
+                  component="h1"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    fontSize: { xs: "1.75rem", sm: "2.25rem", md: "3rem" },
+                    lineHeight: { xs: 1.2, md: 1.3 },
+                  }}
+                >
                   Learn New Skills To
                 </Typography>
-                <Typography variant="h2" component="div" sx={{
-                  fontWeight: 700,
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
-                  lineHeight: { xs: 1.2, md: 1.3 }
-                }}>
+                <Typography
+                  variant="h2"
+                  component="div"
+                  sx={{
+                    fontWeight: 700,
+                    mb: { xs: 2, md: 3 },
+                    fontSize: { xs: "1.75rem", sm: "2.25rem", md: "3rem" },
+                    lineHeight: { xs: 1.2, md: 1.3 },
+                  }}
+                >
                   Go Ahead For Your Career
                 </Typography>
 
                 {/* Subtitle */}
-                <Typography variant="body1" sx={{
-                  mb: { xs: 3, md: 4 },
-                  color: 'text.secondary',
-                  fontSize: { xs: '0.9rem', sm: '1rem' }
-                }}>
-                  Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+                <Typography
+                  variant="body1"
+                  sx={{
+                    mb: { xs: 3, md: 4 },
+                    color: "text.secondary",
+                    fontSize: { xs: "0.9rem", sm: "1rem" },
+                  }}
+                >
+                  Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
+                  vulputate libero et velit interdum, ac aliquet odio mattis.
                 </Typography>
 
                 {/* Mission Card */}
-                <Card elevation={0} sx={{
-                  mb: { xs: 2, md: 3 },
-                  borderRadius: 2,
-                  border: '1px solid #e0e0e0',
-                  position: 'relative',
-                  overflow: 'visible'
-                }}>
-                  <CardContent sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    alignItems: { xs: 'center', sm: 'flex-start' },
-                    p: { xs: 2, sm: 3 }
-                  }}>
-                    <Box sx={{
-                      width: { xs: 60, sm: 100 },
-                      height: { xs: 60, sm: 60 },
-                      borderRadius: '50%',
-                      backgroundColor: 'rgba(0, 255, 204, 0.1)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mr: { xs: 0, sm: 2 },
-                      mb: { xs: 2, sm: 0 }
-                    }}>
-                      <StarIcon sx={{ color: '#00FFCC', fontSize: { xs: 24, sm: 28 } }} />
+                <Card
+                  elevation={0}
+                  sx={{
+                    mb: { xs: 2, md: 3 },
+                    borderRadius: 2,
+                    border: "1px solid #e0e0e0",
+                    position: "relative",
+                    overflow: "visible",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      alignItems: { xs: "center", sm: "flex-start" },
+                      p: { xs: 2, sm: 3 },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: { xs: 60, sm: 100 },
+                        height: { xs: 60, sm: 60 },
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(0, 255, 204, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mr: { xs: 0, sm: 2 },
+                        mb: { xs: 2, sm: 0 },
+                      }}
+                    >
+                      <StarIcon
+                        sx={{ color: "#00FFCC", fontSize: { xs: 24, sm: 28 } }}
+                      />
                     </Box>
-                    <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                      <Typography variant="h5" component="h3" sx={{
-                        fontWeight: 600,
-                        mb: 1,
-                        fontSize: { xs: '1.25rem', sm: '1.5rem' }
-                      }}>
+                    <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+                      <Typography
+                        variant="h5"
+                        component="h3"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                        }}
+                      >
                         Our Mission
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+                        Morem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Nunc vulputate libero et velit interdum, ac aliquet odio
+                        mattis.
                       </Typography>
                     </Box>
                   </CardContent>
                 </Card>
 
                 {/* Vision Card */}
-                <Card elevation={0} sx={{
-                  borderRadius: 2,
-                  border: '1px solid #e0e0e0',
-                  position: 'relative',
-                  overflow: 'visible'
-                }}>
-                  <CardContent sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    alignItems: { xs: 'center', sm: 'flex-start' },
-                    p: { xs: 2, sm: 3 }
-                  }}>
-                    <Box sx={{
-                      width: { xs: 60, sm: 100 },
-                      height: { xs: 60, sm: 60 },
-                      borderRadius: '50%',
-                      backgroundColor: 'rgba(0, 255, 204, 0.1)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mr: { xs: 0, sm: 2 },
-                      mb: { xs: 2, sm: 0 }
-                    }}>
-                      <VisibilityIcon sx={{ color: '#00FFCC', fontSize: { xs: 24, sm: 28 } }} />
+                <Card
+                  elevation={0}
+                  sx={{
+                    borderRadius: 2,
+                    border: "1px solid #e0e0e0",
+                    position: "relative",
+                    overflow: "visible",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      alignItems: { xs: "center", sm: "flex-start" },
+                      p: { xs: 2, sm: 3 },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: { xs: 60, sm: 100 },
+                        height: { xs: 60, sm: 60 },
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(0, 255, 204, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mr: { xs: 0, sm: 2 },
+                        mb: { xs: 2, sm: 0 },
+                      }}
+                    >
+                      <VisibilityIcon
+                        sx={{ color: "#00FFCC", fontSize: { xs: 24, sm: 28 } }}
+                      />
                     </Box>
-                    <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                      <Typography variant="h5" component="h3" sx={{
-                        fontWeight: 600,
-                        mb: 1,
-                        fontSize: { xs: '1.25rem', sm: '1.5rem' }
-                      }}>
+                    <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+                      <Typography
+                        variant="h5"
+                        component="h3"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                        }}
+                      >
                         Our Vision
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+                        Morem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Nunc vulputate libero et velit interdum, ac aliquet odio
+                        mattis.
                       </Typography>
                     </Box>
                   </CardContent>
@@ -1086,27 +1312,35 @@ const Homepage = () => {
             variant="subtitle1"
             component="div"
             sx={{
-              color: '#0133DC',
+              color: "#0133DC",
               fontWeight: 600,
-              fontSize: '16px',
+              fontSize: "16px",
               mb: 1,
-              position: 'relative',
-              display: 'inline-block',
-              '&::after': {
+              position: "relative",
+              display: "inline-block",
+              "&::after": {
                 content: '""',
-                position: 'absolute',
-                height: '1px',
-                width: '80px',
-                backgroundColor: '#0133DC',
-                top: '50%',
-                left: '110%',
-              }
+                position: "absolute",
+                height: "1px",
+                width: "80px",
+                backgroundColor: "#0133DC",
+                top: "50%",
+                left: "110%",
+              },
             }}
           >
             POPULAR COURSES
           </Typography>
 
-          <Typography variant="h2" component="h1" sx={{ fontWeight: 'bold', mb: 5, fontSize: { xs: '2rem', md: '2.5rem' } }}>
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: "bold",
+              mb: 5,
+              fontSize: { xs: "2rem", md: "2.5rem" },
+            }}
+          >
             Our Top Courses
           </Typography>
 
@@ -1132,31 +1366,43 @@ const Homepage = () => {
             <Grid container spacing={3}>
               {featuredCourses.slice(0, 3).map((course, index) => (
                 <Grid item xs={12} md={4} key={course.id || index}>
-                  <CourseCard
-                    onClick={() => handleCourseClick(course)}
-                  >
+                  <CourseCard onClick={() => handleCourseClick(course)}>
                     <CardMedia
                       component="img"
                       height="180"
-                      image={course.course_image ? `${baseurl}/${course.course_image.replace(/\\/g, '/')}` : "fallback-image-url"}
+                      image={
+                        course.course_image
+                          ? `${baseurl}/${course.course_image.replace(
+                              /\\/g,
+                              "/"
+                            )}`
+                          : "fallback-image-url"
+                      }
                       alt={course.course_title || "Course"}
-                      sx={{ objectFit: 'cover' }}
+                      sx={{ objectFit: "cover" }}
                     />
                     <CardContent sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          mb: 1,
+                        }}
+                      >
                         <Typography
                           variant="h6"
                           component="h2"
                           sx={{
-                            fontWeight: 'bold',
-                            fontSize: '1rem',
-                            height: '40px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                            height: "40px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
                             WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            flex: 1
+                            WebkitBoxOrient: "vertical",
+                            flex: 1,
                           }}
                         >
                           {course.course_title || "Untitled Course"}
@@ -1167,9 +1413,9 @@ const Homepage = () => {
                           onClick={(e) => handleCourseFavoriteToggle(e, course)}
                         >
                           {isCourseFavorite(course.id) ? (
-                            <FavoriteIcon sx={{ color: 'red' }} />
+                            <FavoriteIcon sx={{ color: "red" }} />
                           ) : (
-                            <FavoriteBorderIcon sx={{ color: 'grey' }} />
+                            <FavoriteBorderIcon sx={{ color: "grey" }} />
                           )}
                         </IconButton>
                       </Box>
@@ -1179,18 +1425,21 @@ const Homepage = () => {
                         color="text.secondary"
                         sx={{
                           mb: 1,
-                          height: '40px',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
+                          height: "40px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
                           WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
+                          WebkitBoxOrient: "vertical",
                         }}
                       >
-                        {course.course_description?.substring(0, 100) || "No description available"}
+                        {course.course_description?.substring(0, 100) ||
+                          "No description available"}
                       </Typography>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                      >
                         <Rating
                           name={`rating-${course.id}`}
                           value={calculateAverageRating(course.Ratings)}
@@ -1203,23 +1452,45 @@ const Homepage = () => {
                         </Typography> */}
                       </Box>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTimeIcon sx={{ color: '#6a6f73', fontSize: 16 }} />
-                          <Typography variant="body2" sx={{ color: '#6a6f73' }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 1,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <AccessTimeIcon
+                            sx={{ color: "#6a6f73", fontSize: 16 }}
+                          />
+                          <Typography variant="body2" sx={{ color: "#6a6f73" }}>
                             {course.time_spend || "N/A"}
                           </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <SignalCellularAltIcon sx={{ color: '#6a6f73', fontSize: 16 }} />
-                          <Typography variant="body2" sx={{ color: '#6a6f73' }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <SignalCellularAltIcon
+                            sx={{ color: "#6a6f73", fontSize: 16 }}
+                          />
+                          <Typography variant="body2" sx={{ color: "#6a6f73" }}>
                             {course.course_level || "Beginner"}
                           </Typography>
                         </Box>
                       </Box>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mt: 1,
+                        }}
+                      >
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                           ₹ {course.course_price || "Free"}
                         </Typography>
 
@@ -1231,7 +1502,9 @@ const Homepage = () => {
                             size="small"
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/coursecontent/${course.id}`, { state: { course } });
+                              navigate(`/coursecontent/${course.id}`, {
+                                state: { course },
+                              });
                             }}
                           >
                             Enrolled
@@ -1255,8 +1528,11 @@ const Homepage = () => {
             </Grid>
           )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
-            <AnimatedButton buttonText="VIEW ALL COURSES" onClick={() => navigate('/Courses')} />
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+            <AnimatedButton
+              buttonText="VIEW ALL COURSES"
+              onClick={() => navigate("/Courses")}
+            />
           </Box>
         </Box>
       </Container>
@@ -1266,27 +1542,35 @@ const Homepage = () => {
             variant="subtitle1"
             component="div"
             sx={{
-              color: '#0133DC',
+              color: "#0133DC",
               fontWeight: 600,
-              fontSize: '16px',
+              fontSize: "16px",
               mb: 1,
-              position: 'relative',
-              display: 'inline-block',
-              '&::after': {
+              position: "relative",
+              display: "inline-block",
+              "&::after": {
                 content: '""',
-                position: 'absolute',
-                height: '1px',
-                width: '80px',
-                backgroundColor: '#0133DC',
-                top: '50%',
-                left: '110%',
-              }
+                position: "absolute",
+                height: "1px",
+                width: "80px",
+                backgroundColor: "#0133DC",
+                top: "50%",
+                left: "110%",
+              },
             }}
           >
             POPULAR Templates
           </Typography>
 
-          <Typography variant="h2" component="h1" sx={{ fontWeight: 'bold', mb: 5, fontSize: { xs: '2rem', md: '2.5rem' } }}>
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: "bold",
+              mb: 5,
+              fontSize: { xs: "2rem", md: "2.5rem" },
+            }}
+          >
             Our Top Templates
           </Typography>
 
@@ -1310,11 +1594,12 @@ const Homepage = () => {
 
           {!templatesLoading && templates.length > 0 && (
             <Grid container spacing={3}>
-              {templates.slice(0, 3).map((template, index) => { // Limit to 3 templates
+              {templates.slice(0, 3).map((template, index) => {
+                // Limit to 3 templates
                 // Parse files if it's a JSON string
                 let filesArray = [];
                 try {
-                  if (template.files && typeof template.files === 'string') {
+                  if (template.files && typeof template.files === "string") {
                     filesArray = JSON.parse(template.files);
                   } else if (Array.isArray(template.files)) {
                     filesArray = template.files;
@@ -1329,25 +1614,39 @@ const Homepage = () => {
                       <CardMedia
                         component="img"
                         height="180"
-                        image={template.cover_image ? `${baseurl}/${template.cover_image.replace(/\\/g, '/')}` : "fallback-image-url"}
+                        image={
+                          template.cover_image
+                            ? `${baseurl}/${template.cover_image.replace(
+                                /\\/g,
+                                "/"
+                              )}`
+                            : "fallback-image-url"
+                        }
                         alt={template.template_title || "Template"}
-                        sx={{ objectFit: 'cover' }}
+                        sx={{ objectFit: "cover" }}
                       />
                       <CardContent sx={{ p: 2 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            mb: 1,
+                          }}
+                        >
                           <Typography
                             variant="h6"
                             component="h2"
                             sx={{
-                              fontWeight: 'bold',
-                              fontSize: '1rem',
-                              height: '40px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: '-webkit-box',
+                              fontWeight: "bold",
+                              fontSize: "1rem",
+                              height: "40px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              display: "-webkit-box",
                               WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              flex: 1
+                              WebkitBoxOrient: "vertical",
+                              flex: 1,
                             }}
                           >
                             {template.template_name || "Untitled Template"}
@@ -1355,12 +1654,14 @@ const Homepage = () => {
                           <IconButton
                             size="small"
                             sx={{ ml: 1, p: 0.5 }}
-                            onClick={(e) => handleTemplateFavoriteToggle(e, template)}
+                            onClick={(e) =>
+                              handleTemplateFavoriteToggle(e, template)
+                            }
                           >
                             {isTemplateFavorite(template.id) ? (
-                              <FavoriteIcon sx={{ color: 'red' }} />
+                              <FavoriteIcon sx={{ color: "red" }} />
                             ) : (
-                              <FavoriteBorderIcon sx={{ color: 'grey' }} />
+                              <FavoriteBorderIcon sx={{ color: "grey" }} />
                             )}
                           </IconButton>
                         </Box>
@@ -1370,31 +1671,63 @@ const Homepage = () => {
                           color="text.secondary"
                           sx={{
                             mb: 1,
-                            height: '40px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
+                            height: "40px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
                             WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
+                            WebkitBoxOrient: "vertical",
                           }}
                         >
                           {template.description || "No description available"}
                         </Typography>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <DescriptionIcon sx={{ color: '#6a6f73', fontSize: 16 }} />
-                            <Typography variant="body2" sx={{ color: '#6a6f73' }}>
-                              <Box component="span" sx={{ color: '#374151', mr: 0.5, fontWeight: 500 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 1,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <DescriptionIcon
+                              sx={{ color: "#6a6f73", fontSize: 16 }}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "#6a6f73" }}
+                            >
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: "#374151",
+                                  mr: 0.5,
+                                  fontWeight: 500,
+                                }}
+                              >
                                 {filesArray.length || 0}
                               </Box>
-                              {filesArray.length === 1 ? 'File' : 'Files'}
+                              {filesArray.length === 1 ? "File" : "Files"}
                             </Typography>
                           </Box>
                         </Box>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mt: 1,
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                             ₹ {template.price || "Free"}
                           </Typography>
 
@@ -1406,7 +1739,9 @@ const Homepage = () => {
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/template/${template.id}`, { state: { template } });
+                                navigate(`/template/${template.id}`, {
+                                  state: { template },
+                                });
                               }}
                             >
                               Enrolled
@@ -1431,38 +1766,200 @@ const Homepage = () => {
             </Grid>
           )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
-            <AnimatedButton buttonText="VIEW ALL Templates" onClick={() => navigate('/Templates')} />
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+            <AnimatedButton
+              buttonText="VIEW ALL Templates"
+              onClick={() => navigate("/Templates")}
+            />
           </Box>
         </Box>
       </Container>
+ 
+       <Container>
+      <Box sx={{ p: 3}}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Box mb={3}>
+          <Typography
+            variant="subtitle1"
+            component="div"
+            sx={{
+              color: "#0133DC",
+              fontWeight: 600,
+              fontSize: "16px",
+              mb: 1,
+              position: "relative",
+              display: "inline-block",
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                height: "1px",
+                width: "80px",
+                backgroundColor: "#0133DC",
+                top: "50%",
+                left: "110%",
+              },
+            }}
+          >
+            Track Learning
+          </Typography>
+            
+            <Typography variant="h4" component="h1" fontWeight="bold" mb={1}>
+              Monitor & Keep a Detailed Record of {" "}
+              <Box
+                  component="span"
+                  sx={{
+                    background: "linear-gradient(to right, #0133DC, #FF52F8)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontWeight: "bold",
+                  }}
+                >
+                  fundraising
+                </Box>{" "}
+            </Typography>
+            
+            <Typography variant="body1" color="text.secondary" mb={4} maxWidth="90%">
+              Stay on top of your educational journey with our comprehensive tracking tools.
+              Our platform allows you to monitor your study habits and progress.
+            </Typography>
+            
+            <List sx={{ mb: 4 }} disablePadding>
+              <ListItem disablePadding sx={{ mb: 2 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <CheckIcon color="CheckIcon" />
+                </ListItemIcon>
+                <ListItemText 
+                  primary={<Typography fontWeight="medium">Track Your Progress</Typography>}
+                  secondary="View detailed reports on your completed lessons, assignments & milestones."
+                />
+              </ListItem>
+              
+              <ListItem disablePadding sx={{ mb: 2 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <CheckIcon color="CheckIcon" />
+                </ListItemIcon>
+                <ListItemText 
+                  primary={<Typography fontWeight="medium">Set Learning Goals</Typography>}
+                  secondary="Define your objectives & monitor your progress toward achieving them."
+                />
+              </ListItem>
+              
+              <ListItem disablePadding sx={{ mb: 3 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <CheckIcon color="CheckIcon" />
+                </ListItemIcon>
+                <ListItemText 
+                  primary={<Typography fontWeight="medium">Adjust your study plan</Typography>}
+                  secondary="Use insights from your activity records to optimize your learning strategy and improve outcomes."
+                />
+              </ListItem>
+            </List>
+            
+            <Box>
+            <AnimatedButton
+              buttonText="Get Started"
+              onClick={() => navigate("/Courses")}
+            />
+            </Box>
+          </Box>
+        </Grid>
+        
+        <Grid item xs={12} md={4}>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <Box p={3}>
+                  <Typography variant="h6" mb={2}>
+                    Subject Statistics
+                  </Typography>
+                  <SubjectChart />
+                  <Box display="flex" justifyContent="center" mt={2} gap={2}>
+                    <Box display="flex" alignItems="center">
+                      <Box 
+                        component="span" 
+                        sx={{ 
+                          display: 'inline-block', 
+                          width: 10, 
+                          height: 10, 
+                          borderRadius: '50%', 
+                          bgcolor: '#5ee7d8', 
+                          mr: 1 
+                        }} 
+                      />
+                      <Typography variant="body2" color="text.secondary">Marketing</Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Box 
+                        component="span" 
+                        sx={{ 
+                          display: 'inline-block', 
+                          width: 10, 
+                          height: 10, 
+                          borderRadius: '50%', 
+                          bgcolor: '#ffd54f', 
+                          mr: 1 
+                        }} 
+                      />
+                      <Typography variant="body2" color="text.secondary">Business</Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Box 
+                        component="span" 
+                        sx={{ 
+                          display: 'inline-block', 
+                          width: 10, 
+                          height: 10, 
+                          borderRadius: '50%', 
+                          bgcolor: '#9575cd', 
+                          mr: 1 
+                        }} 
+                      />
+                      <Typography variant="body2" color="text.secondary">Language</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Box>
+    </Container>
 
       {/* Section 5 */}
-      <Container sx={{ maxWidth: '1200px !important' }} maxWidth={false}>
+      <Container sx={{ maxWidth: "1200px !important" }} maxWidth={false}>
         <Box sx={{ display: "flex", flexDirection: "column", py: 6 }}>
           {/* Container for left-aligned header elements */}
-          <Box sx={{ alignItems: 'flex-start', mb: 4, width: "100%" }}>
+          <Box sx={{ alignItems: "flex-start", mb: 4, width: "100%" }}>
             {/* "Just Launched" Text with line */}
-            <Box sx={{ position: 'relative', mb: 1, display: 'flex', alignItems: 'center' }}>
+            <Box
+              sx={{
+                position: "relative",
+                mb: 1,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
               <Typography
                 variant="overline"
                 component="div"
                 sx={{
-                  color: '#0133DC',
+                  color: "#0133DC",
                   fontWeight: 600,
-                  fontSize: { xs: '12px', sm: '14px', md: '16px' },
-                  letterSpacing: '1px',
+                  fontSize: { xs: "12px", sm: "14px", md: "16px" },
+                  letterSpacing: "1px",
                 }}
               >
                 JUST LAUNCHED
               </Typography>
               <Box
                 sx={{
-                  width: '80px',
-                  height: '1px',
-                  backgroundColor: '#0133DC',
+                  width: "80px",
+                  height: "1px",
+                  backgroundColor: "#0133DC",
                   ml: 1,
-                  display: { xs: 'none', md: 'block' }
+                  display: { xs: "none", md: "block" },
                 }}
               />
             </Box>
@@ -1474,7 +1971,7 @@ const Homepage = () => {
               sx={{
                 fontWeight: "bold",
                 textAlign: "left",
-                fontSize: { xs: '28px', sm: '34px' }
+                fontSize: { xs: "28px", sm: "34px" },
               }}
             >
               Brand-New Learning Tracks
@@ -1482,55 +1979,76 @@ const Homepage = () => {
           </Box>
 
           {/* Two columns of checkboxes - Center aligned */}
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={{ xs: 2, sm: 6 }}
               sx={{
                 justifyContent: "center",
                 mb: 4,
-                width: '100%',
-                maxWidth: '600px'
+                width: "100%",
+                maxWidth: "600px",
               }}
             >
               {/* Left column */}
-              <Stack direction="column" spacing={2} sx={{ width: { xs: '100%', sm: '50%' } }}>
+              <Stack
+                direction="column"
+                spacing={2}
+                sx={{ width: { xs: "100%", sm: "50%" } }}
+              >
                 {items.map((label, index) => (
-                  <Box key={`left-${index}`} sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    key={`left-${index}`}
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
                     <Checkbox
                       checked
                       disableRipple
                       sx={{
-                        color: '#0052cc',
-                        '&.Mui-checked': {
-                          color: '#0052cc',
+                        color: "#0052cc",
+                        "&.Mui-checked": {
+                          color: "#0052cc",
                         },
-                        padding: '4px',
-                        marginRight: '8px'
+                        padding: "4px",
+                        marginRight: "8px",
                       }}
                     />
-                    <Typography sx={{ fontSize: '14px' }}>{label}</Typography>
+                    <Typography sx={{ fontSize: "14px" }}>{label}</Typography>
                   </Box>
                 ))}
               </Stack>
 
               {/* Right column */}
-              <Stack direction="column" spacing={2} sx={{ width: { xs: '100%', sm: '50%' } }}>
+              <Stack
+                direction="column"
+                spacing={2}
+                sx={{ width: { xs: "100%", sm: "50%" } }}
+              >
                 {items.map((label, index) => (
-                  <Box key={`right-${index}`} sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    key={`right-${index}`}
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
                     <Checkbox
                       checked
                       disableRipple
                       sx={{
-                        color: '#0052cc',
-                        '&.Mui-checked': {
-                          color: '#0052cc',
+                        color: "#0052cc",
+                        "&.Mui-checked": {
+                          color: "#0052cc",
                         },
-                        padding: '4px',
-                        marginRight: '8px'
+                        padding: "4px",
+                        marginRight: "8px",
                       }}
                     />
-                    <Typography sx={{ fontSize: '14px' }}>{label}</Typography>
+                    <Typography sx={{ fontSize: "14px" }}>{label}</Typography>
                   </Box>
                 ))}
               </Stack>
@@ -1542,7 +2060,7 @@ const Homepage = () => {
               sx={{
                 textAlign: "center",
                 mb: 3,
-                fontSize: '14px'
+                fontSize: "14px",
               }}
             >
               Subscribe to get a full updates about the Courses
@@ -1555,30 +2073,30 @@ const Homepage = () => {
       </Container>
 
       {/* Section 7 */}
-      <Box sx={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <Box sx={{ padding: "40px 20px", maxWidth: "1200px", margin: "0 auto" }}>
         {/* Header Section */}
         <Box sx={{ marginBottom: 5 }}>
           <Typography
             variant="subtitle1"
             component="div"
             sx={{
-              color: '#0133DC',
+              color: "#0133DC",
               fontWeight: 600,
-              fontSize: '16px',
+              fontSize: "16px",
               marginBottom: 0.5,
-              textTransform: 'uppercase',
-              display: 'flex',
-              alignItems: 'center'
+              textTransform: "uppercase",
+              display: "flex",
+              alignItems: "center",
             }}
           >
             TESTIMONIAL
             <Box
               sx={{
-                width: '100px',
-                height: '1px',
-                backgroundColor: '#0133DC',
+                width: "100px",
+                height: "1px",
+                backgroundColor: "#0133DC",
                 ml: 2,
-                display: 'inline-block'
+                display: "inline-block",
               }}
             />
           </Typography>
@@ -1588,48 +2106,67 @@ const Homepage = () => {
             component="h2"
             sx={{
               fontWeight: 600,
-              fontSize: { xs: '28px', md: '40px' }
+              fontSize: { xs: "28px", md: "40px" },
             }}
           >
             Stories Of Impact And Generosity
           </Typography>
         </Box>
 
-        {/* Navigation Buttons - Aligned to the right */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 4 }}>
-          <IconButton
-            sx={{
-              backgroundColor: '#FFD6F5',
-              borderRadius: '50%',
-              '&:hover': { backgroundColor: '#FAB3F7' },
-              width: 35,
-              height: 35
-            }}
-            onClick={handlePrev}
-          >
-            <ArrowBackIosNewIcon sx={{ color: '#fff' }} />
-          </IconButton>
-          <IconButton
-            sx={{
-              backgroundColor: '#FFD6F5',
-              borderRadius: '50%',
-              '&:hover': { backgroundColor: '#FAB3F7' },
-              width: 35,
-              height: 35
-            }}
-            onClick={handleNext}
-          >
-            <ArrowForwardIosIcon sx={{ color: '#fff' }} />
-          </IconButton>
+        {/* Navigation Buttons and Page Indicator */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Page {currentPage + 1} of{" "}
+            {Math.ceil(ratings?.length / cardsPerPage) || 1}
+          </Typography>
+
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <IconButton
+              disabled={!ratings?.length || ratings.length <= cardsPerPage}
+              sx={{
+                backgroundColor: "#FFD6F5",
+                borderRadius: "50%",
+                "&:hover": { backgroundColor: "#FAB3F7" },
+                "&.Mui-disabled": { backgroundColor: "#f0f0f0", color: "#ccc" },
+                width: 35,
+                height: 35,
+              }}
+              onClick={handlePrev}
+            >
+              <ArrowBackIosNewIcon sx={{ color: "#fff", fontSize: 16 }} />
+            </IconButton>
+            <IconButton
+              disabled={!ratings?.length || ratings.length <= cardsPerPage}
+              sx={{
+                backgroundColor: "#FFD6F5",
+                borderRadius: "50%",
+                "&:hover": { backgroundColor: "#FAB3F7" },
+                "&.Mui-disabled": { backgroundColor: "#f0f0f0", color: "#ccc" },
+                width: 35,
+                height: 35,
+              }}
+              onClick={handleNext}
+            >
+              <ArrowForwardIosIcon sx={{ color: "#fff", fontSize: 16 }} />
+            </IconButton>
+          </Box>
         </Box>
 
         {/* Testimonial Cards */}
         <Box
           sx={{
-            display: 'flex',
+            display: "flex",
             gap: 4,
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between'
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            minHeight: "300px",
           }}
         >
           {ratingsLoading && (
@@ -1644,136 +2181,210 @@ const Homepage = () => {
             </Typography>
           )}
 
-          {!ratingsLoading && ratings.length === 0 && !ratingsError && (
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              No testimonials available at the moment.
-            </Typography>
-          )}
+          {!ratingsLoading &&
+            (!ratings || ratings.length === 0) &&
+            !ratingsError && (
+              <Typography variant="body1" sx={{ mb: 3 }}>
+                No testimonials available at the moment.
+              </Typography>
+            )}
 
-          {!ratingsLoading && ratings.length > 0 && (
-            ratings.map((rating) => (
-              <Card
-                key={rating.id}
-                sx={{
-                  padding: { xs: 3, md: 4 },
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-                  borderRadius: 4,
-                  position: 'relative',
-                  flex: 1,
-                  margin: '28px 0',
-                  overflow: 'visible',
-                  pt: 6 // Added top padding to accommodate avatar
-                }}
-              >
-                {/* Left Quote Icon - Turquoise, positioned top left */}
-                <Box
+          {!ratingsLoading &&
+            ratings?.length > 0 &&
+            ratings
+              .slice(
+                currentPage * cardsPerPage,
+                currentPage * cardsPerPage + cardsPerPage
+              )
+              .map((rating) => (
+                <Card
+                  key={rating.id}
                   sx={{
-                    position: 'absolute',
-                    top: -15,
-                    left: 20,
-                    backgroundColor: '#00FFE0',
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    color: '#fff',
-                    fontSize: '18px',
-                    rotate: '180deg'
+                    padding: { xs: 3, md: 4 },
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                    borderRadius: 4,
+                    position: "relative",
+                    flex: 1,
+                    margin: "28px 0",
+                    overflow: "visible",
+                    pt: 6,
+                    minWidth: { xs: "100%", md: "30%" },
+                    maxWidth: { xs: "100%", md: "32%" },
                   }}
                 >
-                  <FormatQuoteIcon />
-                </Box>
-
-                {/* Avatar - Positioned at top center, partially overlapping the card */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: -40,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 2
-                  }}
-                >
-                  <Avatar
+                  {/* Left Quote Icon */}
+                  <Box
                     sx={{
-                      width: 80,
-                      height: 80,
-                      border: '4px solid #00FFE0',
-                    }}
-                    src={rating.User.profile_image}
-                    alt={rating.User.username}
-                  />
-                </Box>
-
-                {/* Testimonial Text */}
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mt: 3,
-                    mb: 3,
-                    textAlign: 'center',
-                    lineHeight: 1.6,
-                    color: '#333'
-                  }}
-                >
-                  {rating.review}
-                </Typography>
-
-                {/* Name and Rating */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1, }}>
-                  <Typography
-                    variant="subtitle1"
-                    component="p"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '16px',
-                      color: '#333',
+                      position: "absolute",
+                      top: -15,
+                      left: 20,
+                      backgroundColor: "#00FFE0",
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      color: "#fff",
+                      fontSize: "18px",
+                      rotate: "180deg",
                     }}
                   >
-                    {rating.User.username}
-                  </Typography>
-                  <Rating
-                    value={rating.rating}
-                    readOnly
-                    sx={{
-                      color: '#FFD700',
-                      '& .MuiRating-iconFilled': {
-                        color: '#FFD700',
-                      }
-                    }}
-                  />
-                </Box>
+                    <FormatQuoteIcon />
+                  </Box>
 
-                {/* Right Quote Icon - Turquoise, positioned bottom right */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: -15,
-                    right: 20,
-                    backgroundColor: '#00FFE0',
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    color: '#fff',
-                    fontSize: '18px',
-                    transform: 'rotate(-360deg)'
-                  }}
-                >
-                  <FormatQuoteIcon />
-                </Box>
-              </Card>
-            ))
-          )}
+                  {/* Avatar */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: -40,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      zIndex: 2,
+                    }}
+                  >
+                    <Avatar
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        border: "4px solid #00FFE0",
+                      }}
+                      src={rating.User?.profile_image}
+                      alt={rating.User?.username}
+                    />
+                  </Box>
+
+                  {/* Truncated Testimonial Text */}
+                  <Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        mt: 3,
+                        mb: 1,
+                        textAlign: "center",
+                        lineHeight: 1.6,
+                        color: "#333",
+                        display: "-webkit-box",
+                        overflow: "hidden",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 3,
+                      }}
+                    >
+                      {rating.review}
+                    </Typography>
+
+                    {/* Read More Button */}
+                    <Box sx={{ textAlign: "center", mb: 2 }}>
+                      <Button
+                        onClick={() =>
+                          handleReadMore(rating.review, rating.User?.username)
+                        }
+                        sx={{
+                          color: "#0133DC",
+                          textTransform: "none",
+                          fontWeight: 600,
+                          "&:hover": {
+                            backgroundColor: "rgba(1, 51, 220, 0.04)",
+                          },
+                        }}
+                      >
+                        Read more
+                      </Button>
+                    </Box>
+                  </Box>
+
+                  {/* Name and Rating */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle1"
+                      component="p"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "16px",
+                        color: "#333",
+                      }}
+                    >
+                      {rating.User?.username || "Anonymous"}
+                    </Typography>
+                    <Rating
+                      value={rating.rating}
+                      readOnly
+                      sx={{
+                        color: "#FFD700",
+                        "& .MuiRating-iconFilled": {
+                          color: "#FFD700",
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Right Quote Icon */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: -15,
+                      right: 20,
+                      backgroundColor: "#00FFE0",
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      color: "#fff",
+                      fontSize: "18px",
+                      transform: "rotate(-360deg)",
+                    }}
+                  >
+                    <FormatQuoteIcon />
+                  </Box>
+                </Card>
+              ))}
         </Box>
+
+        {/* Full Review Modal */}
+        <Dialog
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle sx={{ borderBottom: "1px solid #eee", pb: 2 }}>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+              {selectedReview?.username}'s Testimonial
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ py: 3 }}>
+            <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
+              {selectedReview?.text}
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              onClick={() => setOpenModal(false)}
+              sx={{
+                backgroundColor: "#0133DC",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#0028B3" },
+                borderRadius: 2,
+                px: 3,
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
       <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Homepage
+export default Homepage;
