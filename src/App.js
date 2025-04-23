@@ -22,7 +22,6 @@ import WhoWeAre from "./pages/WhoWeAre";
 import ContactUs from "./pages/ContactUs";
 import Courses from "./pages/Courses";
 import PaymentPage from "./pages/PaymentPage";
-import SubscriptionDetails from "./pages/Subscriptions";
 import CourseDetails from "./pages/CourseDetails";
 import TemplateDetails from "./pages/TemplateDetails";
 import CourseContent from "./pages/CourseContent";
@@ -182,7 +181,6 @@ function App() {
               </>
             }
           />
-          <Route path="subscriptions" element={<SubscriptionDetails />} />
           <Route path="course/:id" element={<CourseDetails />} />
           <Route path="template/:id" element={<TemplateDetails />} />
           <Route path="/coursecontent/:id" element={<CourseContent />} />

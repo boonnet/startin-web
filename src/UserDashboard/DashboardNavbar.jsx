@@ -30,7 +30,7 @@ import {
   Menu as MenuIcon,
   Notifications as NotificationsIcon 
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import baseurl from '../ApiService/ApiService'; // Import your API base URL
 
@@ -116,7 +116,7 @@ const DashboardNavbar = ({ toggleSidebar }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [errorNotifications, setErrorNotifications] = useState(null);
-  // Removed the unused notificationsViewed state
+  const [notificationsViewed, setNotificationsViewed] = useState(false);
 
   // Profile dropdown state
   const [open, setOpen] = useState(false);
@@ -129,41 +129,13 @@ const DashboardNavbar = ({ toggleSidebar }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const getCurrentUserID = () => {
-    try {
-      const userData = localStorage.getItem("userInfo");
-      if (userData) {
-        const parsedUserData = JSON.parse(userData);
-        return parsedUserData.id || parsedUserData.user_id || parsedUserData._id;
-      }
-      return null;
-    } catch (error) {
-      console.error("Error getting current user ID:", error);
-      return null;
-    }
-  };
-
-  const formatTimeAgo = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
-
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
-
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short', day: 'numeric'
-    }).format(date);
-  };
-
   const fetchNotifications = async () => {
     const userId = getCurrentUserID();
     setLoadingNotifications(true);
   
     try {
       const response = await axios.get(`${baseurl}/api/notification/all`);
+      console.log("All notifications:", response.data);
   
       if (response.data.status === 'success' && response.data.data) {
         const userNotifications = response.data.data.filter(
@@ -199,8 +171,9 @@ const DashboardNavbar = ({ toggleSidebar }) => {
           setUnreadCount(unreadNotifications.length);
         }
         
+        
         setNotifications(formattedData);
-
+        console.log("Filtered notifications:", formattedData);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -215,6 +188,9 @@ const DashboardNavbar = ({ toggleSidebar }) => {
     const userId = getCurrentUserID();
     
     try {
+      // First, mark as read in the UI
+      setNotificationsViewed(true);
+      
       // Store the current timestamp in localStorage
       localStorage.setItem('notificationsLastViewed', new Date().toISOString());
       
@@ -233,6 +209,7 @@ const DashboardNavbar = ({ toggleSidebar }) => {
         user_id: userId
       }).then(response => {
         setUnreadCount(0);
+        console.log('Marked notifications as read:', response.data);
       });
     } catch (error) {
       console.error('Error marking notifications as read:', error);
@@ -278,6 +255,35 @@ const DashboardNavbar = ({ toggleSidebar }) => {
     );
   };
 
+  const getCurrentUserID = () => {
+    try {
+      const userData = localStorage.getItem("userInfo");
+      if (userData) {
+        const parsedUserData = JSON.parse(userData);
+        return parsedUserData.id || parsedUserData.user_id || parsedUserData._id;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting current user ID:", error);
+      return null;
+    }
+  };
+
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short', day: 'numeric'
+    }).format(date);
+  };
+
   // Get user info from localStorage
   useEffect(() => {
     try {
@@ -292,11 +298,14 @@ const DashboardNavbar = ({ toggleSidebar }) => {
     // Fetch notifications when component mounts
     fetchNotifications();
     
+    // Reset the viewed state when component mounts
+    setNotificationsViewed(false);
+    
     // Set up interval to fetch notifications periodically
     const notificationInterval = setInterval(fetchNotifications, 60000); // Every minute
     
     return () => clearInterval(notificationInterval);
-  }, []);  // fetchNotifications doesn't need to be in deps array because it's defined in the same component scope
+  }, []);
 
   // Fetch settings including logo from backend
   useEffect(() => {
@@ -455,6 +464,7 @@ const DashboardNavbar = ({ toggleSidebar }) => {
 
   const profileImageUrl = getProfileImageUrl(userInfo?.profile_image);
 
+  
   return (
     <AppBar
       position="fixed"

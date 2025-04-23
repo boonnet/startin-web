@@ -30,7 +30,7 @@ const Footer = React.memo(() => {
           // Store full settings data
           setSettings(response.data);
           // Create full URL for the logo
-          setLogo(`${baseurl}/${response.data.site_logo}`);
+          setLogo(`${baseurl}/${response.data.site_dark_logo}`);
           setError(null);
         } else {
           setError('Logo not found in response');
@@ -192,33 +192,22 @@ const Footer = React.memo(() => {
           {/* Logo and Description */}
           <Grid item xs={12} sm={6} md={3}>
             {renderLogo()}
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                mb: 2,
-                fontSize: { xs: '0.875rem', sm: '1rem' }
-              }}
-            >
-              {settings?.site_description || "Morem ipsum dolor sit amet, consectetur adipiscing elit. Nunc"}
-            </Typography>
             <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
               Connect with Us
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
               {socialIcons.map(({ Icon, href, color }, index) => (
                 <IconButton
                   key={index}
                   href={href}
                   sx={{ 
                     color: color,
-                    p: { xs: 1, sm: 1.5 },
                     '&:hover': { transform: 'scale(1.1)' }
                   }}
                 >
                   <Icon sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }} />
                 </IconButton>
               ))}
-            </Box>
+            
           </Grid>
 
           {/* Quick Links */}

@@ -84,6 +84,7 @@ const NavigationsComponent = () => {
 
       try {
         const response = await axios.get(`${baseurl}/api/notification/all`);
+        console.log("All notifications:", response.data);
 
         if (response.data.status === 'success' && response.data.data) {
           const userNotifications = response.data.data.filter(
@@ -99,6 +100,7 @@ const NavigationsComponent = () => {
           }));
 
           setNavigationItems(formattedData);
+          console.log("Filtered notifications:", formattedData);
         }
       } catch (error) {
         console.error('Error fetching notifications:', error);

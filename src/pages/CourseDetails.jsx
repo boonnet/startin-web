@@ -10,11 +10,7 @@ import {
   Typography,
   Grid,
   Card,
-  CardContent,
   Breadcrumbs,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   List,
   ListItem,
   ListItemIcon,
@@ -190,6 +186,7 @@ const CourseDetails = () => {
         status: "active",
         // Other fields...
       };
+      console.log("Enrollment data being sent:", enrollmentData);
 
       // Make API call to enrollment endpoint
       const response = await axios.post(

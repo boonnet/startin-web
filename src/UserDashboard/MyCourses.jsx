@@ -209,6 +209,7 @@ const MyCourses = () => {
           }
         });
 
+        console.log("All enrollments response:", enrollmentResponse.data);
 
         // Process enrollments data
         if (enrollmentResponse.data && enrollmentResponse.data.data) {
@@ -230,6 +231,7 @@ const MyCourses = () => {
             });
 
             setEnrolledCourses(enrolledCourses); // Store the full enrollment objects
+            console.log("Current user enrolled courses:", enrolledCourses);
           }
         }
       } catch (err) {
@@ -258,6 +260,7 @@ const MyCourses = () => {
               .map(favorite => favorite.course_id);
 
             setFavoriteCourses(favoriteCourseIds);
+            console.log("Current user favorite courses:", favoriteCourseIds);
 
             // Extract favorite template IDs
             const favoriteTemplateIds = userFavorites
@@ -265,6 +268,7 @@ const MyCourses = () => {
               .map(favorite => favorite.template_id);
 
             setFavoriteTemplates(favoriteTemplateIds);
+            console.log("Current user favorite templates:", favoriteTemplateIds);
           }
         } catch (err) {
           console.error("Error fetching favorites:", err);
@@ -387,9 +391,6 @@ const MyCourses = () => {
                         readOnly
                         size="small"
                       />
-                      <Typography variant="body2" sx={{ ml: 0.5, color: '#6a6f73' }}>
-                        ({Math.floor(Math.random() * 500) + 100})
-                      </Typography>
                     </Box>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>

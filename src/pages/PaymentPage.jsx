@@ -207,6 +207,8 @@ const PaymentPage = () => {
         payment_date: new Date().toISOString()
       };
       
+      console.log("Payment data being sent:", paymentData);
+      
       // Make API call to payment endpoint
       const paymentResponse = await axios.post(
         `${baseurl}/api/payment/add`,
@@ -219,6 +221,8 @@ const PaymentPage = () => {
         }
       );
       
+      console.log("Payment response:", paymentResponse.data);
+      
       if (paymentResponse.data) {
         // 2. Now enroll the user in the course using the payment ID
         const enrollmentData = {
@@ -229,6 +233,8 @@ const PaymentPage = () => {
           status: "active",
           payment_id: paymentResponse.data.id || paymentResponse.data.payment_id
         };
+        
+        console.log("Enrollment data being sent:", enrollmentData);
         
         // Call enrollment API
         const enrollResponse = await axios.post(
@@ -241,6 +247,8 @@ const PaymentPage = () => {
             }
           }
         );
+        
+        console.log("Enrollment response:", enrollResponse.data);
         
         // Show success message
         setSnackbar({

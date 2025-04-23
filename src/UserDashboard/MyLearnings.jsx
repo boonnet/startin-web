@@ -81,6 +81,7 @@ const MyLearning = () => {
           }
         });
 
+        console.log("All enrollments response:", enrollmentResponse.data);
 
         // Process enrollments data
         if (enrollmentResponse.data && enrollmentResponse.data.data) {
@@ -102,6 +103,7 @@ const MyLearning = () => {
             });
 
             setEnrolledCourses(enrolledCourses); // Store the full enrollment objects
+            console.log("Current user enrolled courses:", enrolledCourses);
           }
         }
       } catch (err) {

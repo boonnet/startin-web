@@ -17,46 +17,15 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  Tabs,
   Tab,
-  Paper,
-  Chip,
-  Divider,
-  Rating
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
-import StarIcon from "@mui/icons-material/Star";
 import DescriptionIcon from '@mui/icons-material/Description';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import computer from "../assets/computer.png";
-import AnimatedButton from "../components/Button";
-import CheckIcon from "@mui/icons-material/Check";
 import baseurl from "../ApiService/ApiService";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
-// Styled components for the circles
-const Circle = styled(Box)(
-  ({ theme, size = 60, color = "#B5CCFF", top, left, right, bottom }) => ({
-    position: "absolute",
-    width: size,
-    height: size,
-    borderRadius: "50%",
-    backgroundColor: color,
-    opacity: 0.6,
-    top,
-    left,
-    right,
-    bottom,
-    zIndex: 1,
-  })
-);
 
 // Styled component for category tabs
 const CategoryTab = styled(Tab)(({ theme }) => ({
@@ -230,6 +199,8 @@ const Courses = () => {
             }
           });
 
+          console.log("All enrollments response:", enrollmentResponse.data);
+
           // Process enrollments data
           if (enrollmentResponse.data && enrollmentResponse.data.data) {
             setAllEnrollments(enrollmentResponse.data.data);
@@ -249,7 +220,7 @@ const Courses = () => {
                   (enrollment.Template && enrollment.Template.id));
 
               setEnrolledTemplates(enrolledTemplateIds);
-
+              console.log("Current user enrolled templates:", enrolledTemplateIds);
 
               // Extract course IDs from user enrollments
               const enrolledCourseIds = userEnrollments
@@ -259,6 +230,7 @@ const Courses = () => {
                   (enrollment.Course && enrollment.Course.id));
 
               setEnrolledCourses(enrolledCourseIds);
+              console.log("Current user enrolled courses:", enrolledCourseIds);
             }
           }
         } catch (err) {
@@ -287,6 +259,7 @@ const Courses = () => {
                 .map(favorite => favorite.course_id);
 
               setFavoriteCourses(favoriteCourseIds);
+              console.log("Current user favorite courses:", favoriteCourseIds);
 
               // Extract favorite template IDs
               const favoriteTemplateIds = userFavorites
@@ -294,6 +267,7 @@ const Courses = () => {
                 .map(favorite => favorite.template_id);
 
               setFavoriteTemplates(favoriteTemplateIds);
+              console.log("Current user favorite templates:", favoriteTemplateIds);
             }
           } catch (err) {
             console.error("Error fetching favorites:", err);
@@ -563,102 +537,29 @@ const Courses = () => {
       <Navbar transparent={true} />
 
       {/* Course Banner Section */}
-      <Box
-        sx={{
-          position: "relative",
-          width: "100%",
-          height: "400px",
-          overflow: "hidden",
-          backgroundColor: "#E6EDFF",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Main large circle in the center */}
-        <Box
-          sx={{
-            position: "absolute",
-            width: "500px",
-            height: "500px",
-            borderRadius: "50%",
-            background: "#D6DFFF",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1,
-          }}
-        />
-
-        {/* Decorative circles */}
-        <Circle size={80} color="#B5FFEB" top="20px" right="180px" />
-        <Circle size={40} color="#B5FFEB" top="120px" left="380px" />
-        <Circle size={60} color="#FFB5D5" top="170px" right="280px" />
-        <Circle size={70} color="#B5CCFF" bottom="20px" left="60px" />
-
-        {/* Content container */}
-        <Container
-          maxWidth="md"
-          sx={{ position: "relative", zIndex: 2, textAlign: "center" }}
-        >
-          {/* Page title */}
+<Box sx={{ bgcolor: '#f7f9fa', py: 4 }}>
+        <Container>
           <Typography
             variant="h2"
             component="h1"
             sx={{
               color: "#333",
-              fontWeight: 700,
+              fontWeight: 600,
               fontSize: { xs: "32px", md: "48px" },
-              mb: 3,
+              mb: 1,
             }}
           >
             Templates
           </Typography>
-
-          {/* Breadcrumb navigation */}
-          <Box
-            sx={{
-              display: "inline-flex",
-              backgroundColor: "white",
-              borderRadius: "30px",
-              padding: "8px 20px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-            }}
-          >
-            <Breadcrumbs separator="|" aria-label="breadcrumb">
-              <Link
-                color="inherit"
-                href="/"
-                sx={{
-                  textDecoration: "none",
-                  color: "#ACB5BD",
-                  fontWeight: 500,
-                }}
-              >
-                Home
-              </Link>
-              <Typography color="primary" fontWeight={500}>
-                Templates
-              </Typography>
-            </Breadcrumbs>
-          </Box>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            Expand your skills with our comprehensive template catalog
+          </Typography>
         </Container>
       </Box>
 
       {/* Templates Section */}
-      <Box sx={{ bgcolor: '#f7f9fa', py: 5, mt: 0 }}>
+      <Box sx={{ py: 5, mt: 0 }}>
         <Container maxWidth="lg">
-          <Typography
-            variant="h4"
-            component="h2"
-            sx={{
-              fontWeight: "bold",
-              mb: 4,
-            }}
-          >
-            Our Templates
-          </Typography>
-
           {templatesLoading && (
             <Typography variant="body1" sx={{ mb: 3 }}>
               Loading templates...

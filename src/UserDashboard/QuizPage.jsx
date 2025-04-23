@@ -119,6 +119,7 @@ const QuizPage = () => {
   };
   
   const handleSkipQuiz = () => {
+    console.log('Skipping quiz');
   };
   
   const handleOptionSelect = (questionId, optionIndex) => {
@@ -133,6 +134,7 @@ const QuizPage = () => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       // Quiz complete logic here
+      console.log('Quiz completed', selectedOptions);
     }
   };
   

@@ -6,13 +6,27 @@ import {
   Card, 
   CardContent, 
   CardMedia, 
+  Chip,
   Container,
   Button
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DescriptionIcon from '@mui/icons-material/Description';
+import FolderIcon from '@mui/icons-material/Folder';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import baseurl from '../ApiService/ApiService';
 import axios from 'axios';
+
+// Utility function to format dates
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+};
 
 const MyTemplates = () => {
   const [enrolledTemplates, setEnrolledTemplates] = useState([]);
@@ -57,6 +71,8 @@ const MyTemplates = () => {
           }
         });
 
+        console.log("All enrollments response:", enrollmentResponse.data);
+
         // Process enrollments data
         if (enrollmentResponse.data && enrollmentResponse.data.data) {
           // Filter enrollments for the current user and only those with template_id
@@ -68,6 +84,7 @@ const MyTemplates = () => {
           );
 
           setEnrolledTemplates(userTemplateEnrollments);
+          console.log("Current user enrolled templates:", userTemplateEnrollments);
         }
       } catch (err) {
         console.error("Error fetching template enrollments:", err);
@@ -192,6 +209,7 @@ const MyTemplates = () => {
                     
                     <Button 
                       variant="contained" 
+                      fullWidth
                       onClick={() => {
                         if (template && template.id) {
                           handleViewTemplate(template.id);

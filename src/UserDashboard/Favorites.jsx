@@ -8,6 +8,7 @@ import {
   Grid,
   Tabs,
   Tab,
+  Button,
   Divider,
   Alert,
   IconButton,
@@ -18,6 +19,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import baseurl from '../ApiService/ApiService';
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
@@ -463,6 +466,9 @@ const UserFavorites = () => {
                           readOnly
                           size="small"
                         />
+                        <Typography variant="body2" sx={{ ml: 0.5, color: '#6a6f73' }}>
+                          ({Math.floor(Math.random() * 500) + 100})
+                        </Typography>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
